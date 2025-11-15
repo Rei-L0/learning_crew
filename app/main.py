@@ -5,7 +5,7 @@ from fastapi.responses import JSONResponse
 from app.schemas.study import StudyCreateFailureResponse
 
 # 라우터들을 import합니다.
-from app.routers import auth, users, studies
+from app.routers import auth, users, studies, study_results, study_scores
 
 # 2. FastAPI 앱 인스턴스(객체)를 생성합니다.
 # 이 'app' 변수가 uvicorn이 실행할 대상입니다.
@@ -37,6 +37,8 @@ async def validation_exception_handler(request: Request, exc: RequestValidationE
 app.include_router(auth.router, prefix="/api")
 app.include_router(users.router, prefix="/api")
 app.include_router(studies.router, prefix="/api")
+app.include_router(study_results.router, prefix="/api")
+app.include_router(study_scores.router, prefix="/api")
 
 # 3. 경로(path) 연산(operation) 데코레이터를 사용합니다.
 # @app.get("/")는 HTTP "GET" 메소드로
