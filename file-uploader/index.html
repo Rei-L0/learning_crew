@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>파일 업로드</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <h2>파일 업로드</h2>
+    <p>서버로 전송할 파일을 선택하세요.</p>
+
+    <form id="uploadForm" enctype="multipart/form-data">
+        <div>
+            <input type="file" id="fileInput" name="myFile">
+        </div>
+        <button type="submit">분석 요청</button>
+    </form>
+
+    <div id="status"></div>
+
+    <div id="resultContainer"></div>
+
+    <script src="script.js"></script>
+</body>
+</html>

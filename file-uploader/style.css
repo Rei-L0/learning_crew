@@ -1,0 +1,134 @@
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-height: 90vh;
+    background-color: #f4f7f6;
+    color: #333;
+    padding: 20px;
+}
+
+form {
+    background: #ffffff;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 24px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    width: 100%;
+    max-width: 500px;
+    box-sizing: border-box;
+}
+
+input[type="file"] {
+    margin-bottom: 16px;
+    font-size: 1rem;
+    width: 100%;
+}
+
+button {
+    width: 100%;
+    padding: 12px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1rem;
+    font-weight: 600;
+}
+
+button:hover {
+    background-color: #0056b3;
+}
+
+#status {
+    margin-top: 20px;
+    font-size: 0.9rem;
+    color: #555;
+    font-weight: 500;
+}
+
+
+/* --- ✨ (추가) 결과 표시 스타일 --- */
+
+#resultContainer {
+    background: #ffffff;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 24px;
+    margin-top: 20px;
+    width: 100%;
+    max-width: 500px;
+    box-sizing: border-box;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+#resultContainer h3 {
+    margin-top: 0;
+    color: #0056b3;
+    border-bottom: 2px solid #007bff;
+    padding-bottom: 10px;
+}
+
+#resultContainer h4 {
+    margin-top: 24px;
+    margin-bottom: 10px;
+    color: #333;
+    border-left: 4px solid #007bff;
+    padding-left: 8px;
+}
+
+#resultContainer .result-box {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    background: #f9f9f9;
+    padding: 16px;
+    border-radius: 5px;
+}
+
+#resultContainer .result-item {
+    display: flex;
+    flex-direction: column;
+}
+
+#resultContainer .result-item strong {
+    font-size: 0.9rem;
+    color: #555;
+    margin-bottom: 4px;
+}
+
+#resultContainer .result-item span {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #007bff;
+}
+
+#resultContainer ul {
+    list-style-type: none;
+    padding-left: 0;
+    margin: 0;
+}
+
+#resultContainer ul li {
+    background: #fdfdfd;
+    border: 1px solid #eee;
+    border-radius: 5px;
+    padding: 12px;
+    margin-bottom: 8px;
+    line-height: 1.5;
+}
+
+#resultContainer ul li strong {
+    color: #333;
+    margin-right: 8px;
+}
+
+#resultContainer p {
+    background: #f9f9f9;
+    border-radius: 5px;
+    padding: 16px;
+    line-height: 1.6;
+    margin: 0;
+}
