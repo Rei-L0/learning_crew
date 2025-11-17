@@ -111,20 +111,32 @@ button:hover {
     margin: 0;
 }
 
+/* '항목별 세부 평가' 목록의 li 스타일을 수정합니다. */
 #resultContainer ul li {
     background: #fdfdfd;
     border: 1px solid #eee;
     border-radius: 5px;
-    padding: 12px;
-    margin-bottom: 8px;
-    line-height: 1.5;
+    padding: 16px; /* 내부 여백을 조금 더 줍니다 */
+    margin-bottom: 10px; /* 항목 간 간격 */
+    line-height: 1.6; /* 줄 간격 */
 }
 
+/* <li> 안의 <strong> 태그 (e.g., "계획 구체성 (10점)") */
 #resultContainer ul li strong {
     color: #333;
-    margin-right: 8px;
+    font-size: 1.1rem; /* 제목이므로 살짝 키웁니다 */
+    display: block; /* <p> 태그와 줄바꿈을 위해 block 요소로 변경 */
+    margin-bottom: 6px; /* 본문과 살짝 띄웁니다 */
+    font-weight: 600; /* 굵게 */
 }
 
+/* <li> 안의 <p> 태그 (평가 근거 텍스트) */
+#resultContainer ul li p {
+    margin: 0; /* <p> 태그의 기본 마진을 제거합니다 */
+    color: #555; /* 본문 텍스트 색상 */
+}
+
+/* '최종 코멘트' <p> 태그 스타일 (기존 스타일) */
 #resultContainer p {
     background: #f9f9f9;
     border-radius: 5px;

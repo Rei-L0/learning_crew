@@ -41,6 +41,35 @@ app.add_middleware(
 )
 # --- CORS 설정 끝 ---
 
+# ✨ 엑셀/텍스트 파일을 읽어 문자열로 반환하는 헬퍼 함수
+async def read_file_content(file: UploadFile) -> str:
+    """UploadFile 객체를 받아 엑셀이나 텍스트를 읽어 문자열로 반환"""
+    content_bytes = await file.read()
+    
+    if file.filename.endswith('.xlsx'):
+        logger.info(f"엑셀 파일(.xlsx) 파싱 중: {file.filename}")
+        file_stream = io.BytesIO(content_bytes)
+        excel_data = pd.read_excel(file_stream, sheet_name=None, engine='openpyxl')
+        
+        report_content = ""
+        for sheet_name, df in excel_data.items():
+            report_content += f"--- 시트: {sheet_name} ---\n"
+            report_content += df.to_string(index=False) + "\n\n"
+        return report_content
+    
+    elif file.filename.endswith('.txt'):
+        logger.info(f"텍스트 파일(.txt) 파싱 중: {file.filename}")
+        return content_bytes.decode('utf-8')
+    
+    else:
+        logger.warning(f"지원하지 않는 파일 형식: {file.filename}. utf-8로 시도.")
+        try:
+            return content_bytes.decode('utf-8')
+        except UnicodeDecodeError:
+            logger.error(f"파일 디코딩 실패: {file.filename}")
+            raise HTTPException(status_code=400, detail=f"파일 디코딩 실패: {file.filename}")
+
+
 # --- 전역 변수: 시스템 프롬프트 ---
 # 서버가 시작될 때 1번만 로드해서 메모리에 저장해 둡니다.
 SYSTEM_PROMPT = ""
@@ -93,43 +122,32 @@ def read_root():
 
 # --- 방법 1: 파일 업로드 API (프론트엔드 연동용) ---
 @app.post("/upload-and-analyze")
-async def upload_and_analyze(myFile: UploadFile = File(...)):
+async def upload_and_analyze(
+    plan_file: UploadFile = File(...), 
+    report_file: UploadFile = File(...)
+    ):
     """
     파일을 업로드받아 그 내용을 분석하고 결과를 반환합니다.
     .xlsx 파일을 읽도록 수정되었습니다.
     """
-    logger.info(f"파일 수신: {myFile.filename}")
+    logger.info(f"파일 수신: [계획서] {plan_file.filename}, [결과보고서] {report_file.filename}")
     
     report_content = "" # 추출된 텍스트를 저장할 변수
 
     try:
-        # 1. 업로드된 파일 내용 읽기 (비동기)
-        content_bytes = await myFile.read()
+        # ✨ 1. 계획서 파일 읽기
+        plan_content = await read_file_content(plan_file)
+        # ✨ 2. 결과보고서 파일 읽기
+        report_content = await read_file_content(report_file)
         
-        # 2. (✨ 변경됨) 엑셀 파일(xlsx) 읽기
-        # 텍스트 파일(.txt)이 아닌 경우
-        if myFile.filename.endswith('.xlsx'):
-            logger.info("엑셀 파일(.xlsx) 파싱 중...")
-            # 1. 바이트 데이터를 pandas가 읽을 수 있도록 메모리상 파일로 변환
-            file_stream = io.BytesIO(content_bytes)
-            
-            # 2. 엑셀 파일의 '모든' 시트 읽기
-            # sheet_name=None으로 설정하면 모든 시트를 딕셔너리로 읽어옵니다.
-            excel_data = pd.read_excel(file_stream, sheet_name=None, engine='openpyxl')
-            
-            # 3. 모든 시트의 데이터를 텍스트로 변환하여 합치기
-            for sheet_name, df in excel_data.items():
-                report_content += f"--- 시트: {sheet_name} ---\n"
-                # DataFrame을 문자열로 변환 (인덱스 제외)
-                report_content += df.to_string(index=False) + "\n\n"
-            
-            logger.info(f"파일 '{myFile.filename}' 읽기 완료 (엑셀)")
+        # ✨ 3. 두 내용을 하나의 프롬프트로 결합
+        combined_content = f"""
+        [제출된 계획서 내용]
+        {plan_content}
 
-        # 3. (✨ 변경됨) 텍스트 파일(.txt)인 경우 (기존 로직)
-        else:
-            logger.info("텍스트 파일(.txt) 파싱 중...")
-            report_content = content_bytes.decode('utf-8')
-            logger.info(f"파일 '{myFile.filename}' 읽기 완료 (텍스트)")
+        [제출된 결과보고서 내용]
+        {report_content}
+        """
 
     except Exception as e:
         logger.error(f"업로드된 파일 읽기 오류: {e}")
@@ -137,10 +155,10 @@ async def upload_and_analyze(myFile: UploadFile = File(...)):
 
     # 4. API 호출 (이후 로직은 동일)
     try:
-        api_response = call_gemini_api(SYSTEM_PROMPT, report_content)
+        api_response = call_gemini_api(SYSTEM_PROMPT, combined_content) 
         
         return {
-            "filename": myFile.filename,
+            "filename": report_file.filename,
             "analysis_result": api_response
         }
     except Exception as e:
