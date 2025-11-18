@@ -143,3 +143,33 @@ button:hover {
   line-height: 1.6;
   margin: 0;
 }
+
+/* style.css 파일 맨 아래에 추가 */
+
+/* 개별 결과 항목을 감싸는 컨테이너 */
+.result-item-container {
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 24px;
+  margin-top: 20px;
+  background: #ffffff;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+/* 연속된 항목들 사이에 여백 */
+.result-item-container + .result-item-container {
+  margin-top: 30px;
+}
+
+/* 에러 항목 스타일 */
+.result-item-container.error h3 {
+  color: #d9534f; /* 붉은색 */
+  border-bottom-color: #d9534f;
+}
+
+.result-item-container.error p {
+  background: #fdf7f7;
+  border-left: 4px solid #d9534f;
+  padding: 10px;
+  color: #333;
+}
