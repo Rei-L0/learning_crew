@@ -7,7 +7,7 @@ body {
   background-color: #f4f7f6;
   color: #333;
   padding: 20px;
-  box-sizing: border-box; /* 패딩이 너비에 포함되도록 */
+  box-sizing: border-box;
 }
 
 h2,
@@ -58,13 +58,12 @@ button:hover {
   text-align: center;
 }
 
-/* --- ✨ (신규) 버튼처럼 보이는 링크 --- */
 .button-link {
   display: block;
   width: 100%;
   max-width: 600px;
   padding: 12px;
-  background-color: #28a745; /* 초록색 */
+  background-color: #28a745;
   color: white;
   border: none;
   border-radius: 5px;
@@ -89,16 +88,16 @@ button:hover {
   background: #ffffff;
   border: 1px solid #ddd;
   border-radius: 8px;
-  padding: 0; /* 패딩은 내부 .result-item-container가 가짐 */
+  padding: 0;
   margin-top: 20px;
   width: 100%;
-  max-width: 600px; /* 너비 증가 */
+  max-width: 600px;
   box-sizing: border-box;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-  overflow: hidden; /* border-radius 적용을 위해 */
+  overflow: hidden;
 }
 
-/* 개별 결과 항목 (접기/펼치기 단위) */
+/* ... (기존 .result-item-container, .result-header, .result-content 등 스타일 동일) ... */
 .result-item-container {
   padding: 0;
   border-bottom: 1px solid #eee;
@@ -106,8 +105,6 @@ button:hover {
 .result-item-container:last-child {
   border-bottom: none;
 }
-
-/* 1. 클릭할 헤더 */
 .result-header {
   cursor: pointer;
   padding: 24px;
@@ -117,38 +114,28 @@ button:hover {
   user-select: none;
   background-color: #fcfcfc;
 }
-
 .result-header h3 {
   margin: 0;
   color: #0056b3;
   text-align: left;
 }
-
-/* 2. 토글 아이콘 (장식) */
 .result-header::after {
   content: "▼";
   font-size: 0.8em;
   color: #888;
   transition: transform 0.2s ease;
 }
-
-/* 3. 펼쳐질 콘텐츠 (기본 숨김) */
 .result-content {
   display: none;
   padding: 0 24px 24px 24px;
   border-top: 1px solid #f0f0f0;
 }
-
-/* 4. 'active' 클래스가 붙었을 때 (펼쳐진 상태) */
 .result-item-container.active .result-content {
   display: block;
 }
-
 .result-item-container.active .result-header::after {
   transform: rotate(180deg);
 }
-
-/* 5. 에러 항목 */
 .result-item-container.error .result-header {
   cursor: default;
   background-color: #fff8f8;
@@ -157,14 +144,12 @@ button:hover {
   color: #d9534f;
 }
 .result-item-container.error .result-content {
-  display: block; /* 에러는 항상 보임 */
+  display: block;
 }
 .result-item-container.error .result-header::after {
   content: "⚠️";
   transform: none;
 }
-
-/* --- 결과 콘텐츠 내부 스타일 --- */
 .result-content h4 {
   margin-top: 24px;
   margin-bottom: 10px;
@@ -172,7 +157,6 @@ button:hover {
   border-left: 4px solid #007bff;
   padding-left: 8px;
 }
-
 .result-content .result-box {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -181,30 +165,25 @@ button:hover {
   padding: 16px;
   border-radius: 5px;
 }
-
 .result-content .result-item {
   display: flex;
   flex-direction: column;
 }
-
 .result-content .result-item strong {
   font-size: 0.9rem;
   color: #555;
   margin-bottom: 4px;
 }
-
 .result-content .result-item span {
   font-size: 1.5rem;
   font-weight: 700;
   color: #007bff;
 }
-
 .result-content ul {
   list-style-type: none;
   padding-left: 0;
   margin: 0;
 }
-
 .result-content ul li {
   background: #fdfdfd;
   border: 1px solid #eee;
@@ -213,7 +192,6 @@ button:hover {
   margin-bottom: 10px;
   line-height: 1.6;
 }
-
 .result-content ul li strong {
   color: #333;
   font-size: 1.1rem;
@@ -221,12 +199,10 @@ button:hover {
   margin-bottom: 6px;
   font-weight: 600;
 }
-
 .result-content ul li p {
   margin: 0;
   color: #555;
 }
-
 .result-content p {
   background: #f9f9f9;
   border-radius: 5px;
@@ -235,63 +211,148 @@ button:hover {
   margin: 0;
 }
 
-/* --- ✨ (신규) 게시판 목록 스타일 (board.html) --- */
+/* --- ✨ (신규) 필터 바 스타일 (board.html) --- */
+.filter-bar {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr; /* 3열 그리드 */
+  gap: 10px;
+  background: #fdfdfd;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 16px;
+  margin-top: 20px;
+  width: 100%;
+  max-width: 600px;
+  box-sizing: border-box;
+}
+
+/* 날짜 필터 (2개 입력창을 감쌈) */
+.filter-bar .date-range {
+  grid-column: 1 / -1; /* 1열부터 끝열까지 차지 */
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+.filter-bar .date-range label {
+  font-size: 0.9rem;
+  color: #555;
+  white-space: nowrap;
+}
+
+/* 검색어 입력창 (전체 너비) */
+.filter-bar .search-group {
+  grid-column: 1 / -1;
+  display: flex;
+  gap: 10px;
+}
+
+.filter-bar select,
+.filter-bar input[type="date"],
+.filter-bar input[type="text"] {
+  width: 100%;
+  padding: 10px;
+  font-size: 0.95rem;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  box-sizing: border-box;
+}
+
+.filter-bar input[type="text"] {
+  flex-grow: 1; /* 검색창이 남은 공간 차지 */
+}
+
+.filter-bar button {
+  width: auto;
+  padding: 10px 15px; /* 검색 버튼 크기 조절 */
+  font-size: 0.95rem;
+}
+
+/* --- ✨ (수정) 게시판 목록 스타일 (board.html) --- */
 #boardContainer {
   background: #ffffff;
   border: 1px solid #ddd;
   border-radius: 8px;
-  padding: 24px;
+  padding: 0; /* 테이블이 꽉 차도록 패딩 제거 */
   margin-top: 20px;
   width: 100%;
   max-width: 600px;
   box-sizing: border-box;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  overflow: hidden; /* 모서리 둥글게 */
 }
 
-.board-item {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 16px;
+/* (신규) 테이블 스타일 */
+.board-table {
+  width: 100%;
+  border-collapse: collapse; /* 테두리 겹침 제거 */
+}
+
+.board-table th,
+.board-table td {
+  padding: 12px 15px;
+  text-align: left;
   border-bottom: 1px solid #eee;
-  text-decoration: none;
+  font-size: 0.95rem;
+}
+
+.board-table th {
+  background-color: #f9f9f9;
+  font-weight: 600;
   color: #333;
+}
+
+.board-table tbody tr {
+  cursor: pointer;
   transition: background-color 0.2s ease;
 }
 
-.board-item:hover {
-  background-color: #f9f9f9;
+.board-table tbody tr:hover {
+  background-color: #f5f5f5;
 }
 
-.board-item:last-child {
-  border-bottom: none;
-}
-
-.board-item-info {
-  display: flex;
-  flex-direction: column;
-}
-
-.board-item-filename {
-  font-weight: 600;
-  font-size: 1.1rem;
-  margin-bottom: 4px;
-}
-
-.board-item-date {
-  font-size: 0.85rem;
-  color: #777;
-}
-
-.board-item-score {
-  font-size: 1.3rem;
+.board-table td:nth-child(1) {
+  width: 10%;
+  text-align: center;
+} /* 번호 */
+.board-table td:nth-child(2) {
+  width: 30%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 150px;
+} /* 파일명 */
+.board-table td:nth-child(3) {
+  width: 15%;
+} /* 작성자 */
+.board-table td:nth-child(4) {
+  width: 15%;
+} /* 캠퍼스 */
+.board-table td:nth-child(5) {
+  width: 10%;
+  text-align: center;
   font-weight: 700;
   color: #007bff;
+} /* 점수 */
+.board-table td:nth-child(6) {
+  width: 20%;
+  font-size: 0.85rem;
+  color: #777;
+} /* 제출일 */
+
+/* (신규) 로딩 및 빈 상태 메시지 */
+.board-table .loading-row td,
+.board-table .empty-row td {
+  text-align: center;
+  padding: 40px;
+  color: #777;
+  font-style: italic;
+  cursor: default;
+}
+.board-table .empty-row:hover {
+  background-color: #fff;
 }
 
-/* --- ✨ (신규) detail.html용 단일 항목 스타일 --- */
-/* detail.html에서는 .result-item-container가 1개만 있으므로, 
-   헤더 클릭 기능을 비활성화하고 항상 펼쳐진 상태로 만듭니다. */
+/* --- detail.html용 단일 항목 스타일 (동일) --- */
 #detailContainer .result-item-container {
   border-bottom: none;
 }
@@ -300,10 +361,10 @@ button:hover {
   background-color: #fff;
 }
 #detailContainer .result-header::after {
-  content: "📋"; /* 아이콘 변경 */
+  content: "📋";
   transform: none;
 }
 #detailContainer .result-content {
-  display: block; /* 항상 보이기 */
+  display: block;
   border-top: 1px solid #f0f0f0;
 }

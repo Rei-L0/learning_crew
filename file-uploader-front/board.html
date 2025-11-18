@@ -17,8 +17,58 @@
       >파일 업로드로 돌아가기</a
     >
 
+    <!-- ✨ (신규) 필터 바 -->
+    <div class="filter-bar">
+      <!-- 1행: 드롭다운 -->
+      <select id="filter-campus">
+        <option value="">-- 캠퍼스 (전체) --</option>
+        <!-- JS로 채워짐 -->
+      </select>
+      <select id="filter-class">
+        <option value="">-- 반 (전체) --</option>
+        <!-- JS로 채워짐 -->
+      </select>
+
+      <!-- 날짜 필터 (간소화를 위해 1열 차지 버튼 제거) -->
+
+      <!-- 2행: 날짜 범위 -->
+      <div class="date-range">
+        <label for="filter-start-date">제출일:</label>
+        <input type="date" id="filter-start-date" />
+        <span>~</span>
+        <input type="date" id="filter-end-date" />
+      </div>
+
+      <!-- 3행: 검색어 -->
+      <div class="search-group">
+        <input
+          type="text"
+          id="filter-search-term"
+          placeholder="작성자명 또는 파일명 검색" />
+        <button id="filter-search-btn">검색</button>
+      </div>
+    </div>
+
+    <!-- ✨ (수정) 테이블 구조로 변경 -->
     <div id="boardContainer">
-      <div id="boardLoading">결과를 불러오는 중입니다...</div>
+      <table class="board-table">
+        <thead>
+          <tr>
+            <th>번호</th>
+            <th>파일명</th>
+            <th>작성자</th>
+            <th>캠퍼스</th>
+            <th>총점</th>
+            <th>제출일</th>
+          </tr>
+        </thead>
+        <tbody id="board-tbody">
+          <!-- JS로 채워짐 -->
+          <tr class="loading-row">
+            <td colspan="6">결과를 불러오는 중입니다...</td>
+          </tr>
+        </tbody>
+      </table>
     </div>
 
     <script src="board.js"></script>
