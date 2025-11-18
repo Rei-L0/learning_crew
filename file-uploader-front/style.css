@@ -144,32 +144,58 @@ button:hover {
   margin: 0;
 }
 
-/* style.css 파일 맨 아래에 추가 */
+/* --- ✨ (추가) 접기/펼치기 스타일 --- */
 
-/* 개별 결과 항목을 감싸는 컨테이너 */
-.result-item-container {
-  border: 1px solid #ddd;
-  border-radius: 8px;
-  padding: 24px;
-  margin-top: 20px;
-  background: #ffffff;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+/* (수정) 기존 컨테이너의 패딩을 0으로 변경 (헤더/콘텐츠에 개별 적용) */
+#resultContainer .result-item-container {
+  padding: 0;
+  overflow: hidden; /* border-radius가 내부 요소에도 적용되도록 */
 }
 
-/* 연속된 항목들 사이에 여백 */
-.result-item-container + .result-item-container {
-  margin-top: 30px;
+/* 1. 클릭할 헤더 (새 스타일) */
+.result-header {
+  cursor: pointer;
+  padding: 24px; /* 기존 컨테이너의 패딩을 헤더가 담당 */
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  user-select: none; /* 클릭 시 텍스트 드래그 방지 */
 }
 
-/* 에러 항목 스타일 */
-.result-item-container.error h3 {
-  color: #d9534f; /* 붉은색 */
-  border-bottom-color: #d9534f;
+/* 2. 토글 아이콘 (장식) */
+.result-header::after {
+  content: "▼"; /* 닫힌 상태 아이콘 */
+  font-size: 0.8em;
+  color: #888;
+  transition: transform 0.2s ease;
 }
 
-.result-item-container.error p {
-  background: #fdf7f7;
-  border-left: 4px solid #d9534f;
-  padding: 10px;
-  color: #333;
+/* 3. (핵심) 펼쳐질 콘텐츠 (기본 숨김) */
+.result-content {
+  display: none;
+  padding: 0 24px 24px 24px; /* 상단 패딩 제외, 좌/우/하단 패딩 적용 */
+  border-top: 1px solid #f0f0f0; /* 헤더와 콘텐츠 구분선 */
+}
+
+/* 4. (핵심) 'active' 클래스가 붙었을 때의 스타일 */
+.result-item-container.active .result-content {
+  display: block; /* 콘텐츠 보이기 */
+}
+
+.result-item-container.active .result-header::after {
+  transform: rotate(180deg); /* 아이콘 180도 회전 */
+}
+
+/* 5. (예외) 에러가 발생한 항목은 항상 펼쳐둠 */
+.result-item-container.error .result-header {
+  cursor: default; /* 에러 항목은 클릭 비활성화 */
+}
+
+.result-item-container.error .result-content {
+  display: block; /* 에러 콘텐츠는 항상 보이기 */
+}
+
+.result-item-container.error .result-header::after {
+  content: "⚠️"; /* 에러 아이콘 */
+  transform: none;
 }
