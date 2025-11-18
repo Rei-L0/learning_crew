@@ -53,7 +53,7 @@ document.addEventListener("DOMContentLoaded", () => {
     // 1. 로딩 상태 표시
     boardTbody.innerHTML = `
       <tr class="loading-row">
-        <td colspan="6">결과를 불러오는 중입니다...</td>
+        <td colspan="7">결과를 불러오는 중입니다...</td> <!-- ✨ colspan 수정 (6 -> 7) -->
       </tr>`;
 
     // 2. URL 쿼리 스트링 생성
@@ -73,7 +73,7 @@ document.addEventListener("DOMContentLoaded", () => {
       if (results.length === 0) {
         boardTbody.innerHTML = `
           <tr class="empty-row">
-            <td colspan="6">일치하는 분석 결과가 없습니다.</td>
+            <td colspan="7">일치하는 분석 결과가 없습니다.</td> <!-- ✨ colspan 수정 (6 -> 7) -->
           </tr>`;
         return;
       }
@@ -90,21 +90,25 @@ document.addEventListener("DOMContentLoaded", () => {
         // 날짜 포맷팅 (간단하게 'YYYY-MM-DD' 형식)
         const date = new Date(result.created_at).toISOString().split("T")[0];
 
+        // --- ✨ (핵심 수정) '반' 컬럼(result.class_name) 추가 ---
         tr.innerHTML = `
           <td>${results.length - index}</td>
           <td>${result.filename || "N/A"}</td>
           <td>${result.author_name || "-"}</td>
           <td>${result.campus || "-"}</td>
+          <td>${result.class_name || "-"}</td> <!-- ✨ '반' 데이터 추가 -->
           <td>${result.total_score || "N/A"}</td>
           <td>${date}</td>
         `;
+        // --- 수정 끝 ---
+
         boardTbody.appendChild(tr);
       });
     } catch (error) {
       console.error("결과 목록 로드 실패:", error);
       boardTbody.innerHTML = `
         <tr class="empty-row">
-          <td colspan="6" style="color: red;">
+          <td colspan="7" style="color: red;"> <!-- ✨ colspan 수정 (6 -> 7) -->
             ❌ 결과 목록 로드 실패: ${error.message}
           </td>
         </tr>`;

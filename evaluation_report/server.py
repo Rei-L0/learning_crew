@@ -1,4 +1,5 @@
 import logging
+import unicodedata
 from fastapi import FastAPI, UploadFile, File, HTTPException, Query, Request
 from google import genai
 from google.genai import types
@@ -83,56 +84,79 @@ def init_db():
 def extract_info_from_filename(filename: str) -> dict:
     """
     파일명에서 캠퍼스, 반, 작성자 정보를 추출합니다.
-
-    (!!! 중요 !!!)
-    현재 이 함수는 파일명이 "....._[캠퍼스]_[반]_[작성자].xlsx" 형식이라고 가정합니다.
-    예: "8월 스터디 활동 결과보고서_서울_1반_홍길동.xlsx"
-
-    만약 파일명 규칙이 다르면, 이 함수의 `parts` 인덱싱 로직을 수정해야 합니다.
+    (가정) "....._[캠퍼스]_[반]_[작성자](...불필요한 텍스트).xlsx"
+    예: "8월 스터디_광주_4반_이용호.xlsx - 결과보고서.csv"
     """
 
-    # (!!!) 사용자가 제공한 캠퍼스 목록 (필요시 '대전', '부울경' 등 추가)
-    CAMPUS_LIST = ["광주", "구미", "서울", "대전", "부울경"]
-    CLASS_REGEX = r"(\d+반)"  # "1반", "2반" ...
+    # --- ✨ (핵심 수정 1) ---
+    # CAMPUS_LIST 자체를 NFC로 정규화하여, NFD로 정의되었을 가능성을 원천 차단합니다.
+    CAMPUS_LIST_RAW = ["광주", "구미", "서울", "대전", "부울경"]
+    CAMPUS_LIST = [unicodedata.normalize("NFC", s) for s in CAMPUS_LIST_RAW]
+
+    # --- ✨ (핵심 수정 2) ---
+    # 정규식을 'Raw String' (r"...")으로 정의하여 `\d`가 항상 올바르게 해석되도록 합니다.
+    CLASS_REGEX = r"(\d+반)"
 
     try:
+        # 1. 확장자 제거
         name_without_ext = os.path.splitext(filename)[0]
+        # 2. 파일명을 NFC로 정규화 (macOS NFD 호환)
+        name_without_ext = unicodedata.normalize("NFC", name_without_ext)
+
+        # 3. `_` 기준으로 분리
         parts = name_without_ext.split("_")
+        logger.info(f"파일명 분리 결과: {parts}")
 
         info = {"campus": None, "class_name": None, "author_name": None}
 
-        # (가정) 파일명의 마지막 3개 요소가 [캠퍼스]_[반]_[작성자] 라고 가정
+        # 3. (가정) 파일명의 마지막 3개 요소가 [캠퍼스]_[반]_[작성자...] 라고 가정
         if len(parts) >= 4:  # 최소 4개 파트 (e.g., "제목_서울_1반_홍길동")
 
-            campus_candidate = parts[-3]
-            class_candidate = parts[-2]
-            author_candidate = parts[-1]
+            campus_candidate = parts[-3].strip()
+            class_candidate = parts[-2].strip()
+            author_raw = parts[-1].strip()
 
-            # 캠퍼스 목록에 있고, '반' 형식이 맞는지 확인
+            logger.info(f"--- 디버깅 시작 ---")
+            logger.info(
+                f"비교 대상 (campus_candidate): '{campus_candidate}' (in {CAMPUS_LIST}) -> {campus_candidate in CAMPUS_LIST}"
+            )
+            logger.info(
+                f"비교 대상 (class_candidate): '{class_candidate}' (match {CLASS_REGEX}) -> {bool(re.fullmatch(CLASS_REGEX, class_candidate))}"
+            )
+            logger.info(f"--- 디버깅 끝 ---")
+
+            # 4. 캠퍼스/반 형식이 맞는지 확인
             if campus_candidate in CAMPUS_LIST and re.fullmatch(
                 CLASS_REGEX, class_candidate
             ):
                 info["campus"] = campus_candidate
                 info["class_name"] = class_candidate
-                info["author_name"] = author_candidate
+
+                # 5. ✨ (신규) author_raw에서 불필요한 부분 제거
+                #    "이용호.xlsx - 결과보고서" -> "이용호"
+                #    첫 번째 '.' 또는 '-' 또는 ' ' (공백)이 나오는 부분까지만 이름으로 인정
+                author_clean = re.split(r"[\.\s-]", author_raw, 1)[0]
+
+                info["author_name"] = author_clean
 
                 logger.info(f"파일명 정보 추출 성공: {info}")
                 return info
 
-        # (대안) 위 가정이 실패하면, 파트를 순회하며 탐색 (조금 덜 정확할 수 있음)
+        # (대안) 위 가정이 실패하면, 파트를 순회하며 탐색 (정확도 낮음)
         for part in parts:
             if part in CAMPUS_LIST:
                 info["campus"] = part
             elif re.fullmatch(CLASS_REGEX, part):
                 info["class_name"] = part
 
-        # (대안) 작성자 찾기 (캠퍼스/반이 아닌 마지막 파트 추정)
         for part in reversed(parts):
+            # 이상한 단어가 이름으로 들어가지 않도록 최소한의 필터링
             if (
                 (part not in CAMPUS_LIST)
                 and (not re.fullmatch(CLASS_REGEX, part))
                 and ("보고서" not in part)
                 and ("계획서" not in part)
+                and (".xlsx" not in part)
             ):
                 info["author_name"] = part
                 break
@@ -145,9 +169,50 @@ def extract_info_from_filename(filename: str) -> dict:
         logger.error(f"파일명 정보 추출 중 예외 발생: {filename} (오류: {e})")
 
     logger.warning(
-        f"파일명 정보 추출 실패: {filename} (예상 구조: ..._[캠퍼스]_[반]_[이름].xlsx)"
+        f"파일명 정보 추출 실패: {filename} (예상 구조: ..._[캠퍼스]_[반]_[이름]...)"
     )
     return {"campus": None, "class_name": None, "author_name": None}
+
+
+# --- ✨ (수정) read_file_content 헬퍼 함수 (CSV 확장자 추가) ---
+async def read_file_content(file: UploadFile) -> str:
+    content_bytes = await file.read()
+    filename_lower = file.filename.lower()
+
+    if filename_lower.endswith(".xlsx"):
+        logger.info(f"엑셀 파일(.xlsx) 파싱 중: {file.filename}")
+        file_stream = io.BytesIO(content_bytes)
+        excel_data = pd.read_excel(file_stream, sheet_name=None, engine="openpyxl")
+        report_content = ""
+        for sheet_name, df in excel_data.items():
+            report_content += f"--- 시트: {sheet_name} ---\n"
+            report_content += df.to_string(index=False) + "\n\n"
+        return report_content
+
+    # ✨ (수정) .csv 확장자도 txt처럼 처리
+    elif filename_lower.endswith(".txt") or filename_lower.endswith(".csv"):
+        logger.info(f"텍스트/CSV 파일(.txt/.csv) 파싱 중: {file.filename}")
+        try:
+            # (다양한 인코딩 시도)
+            return content_bytes.decode("utf-8")
+        except UnicodeDecodeError:
+            try:
+                return content_bytes.decode("cp949")
+            except Exception as e:
+                logger.error(f"파일 디코딩 실패 (UTF-8, CP949): {file.filename} - {e}")
+                raise HTTPException(
+                    status_code=400, detail=f"파일 디코딩 실패: {file.filename}"
+                )
+
+    else:
+        logger.warning(f"지원하지 않는 파일 형식: {file.filename}. utf-8로 시도.")
+        try:
+            return content_bytes.decode("utf-8")
+        except UnicodeDecodeError:
+            logger.error(f"파일 디코딩 실패: {file.filename}")
+            raise HTTPException(
+                status_code=400, detail=f"파일 디코딩 실패: {file.filename}"
+            )
 
 
 # --- (수정) DB 저장 함수 (동일) ---
@@ -201,28 +266,6 @@ def startup_event():
         logger.critical(f"서버 시작 실패: 시스템 프롬프트 로드 중 오류 발생 - {e}")
         SYSTEM_PROMPT = "ERROR: PROMPT NOT LOADED"
     init_db()
-
-
-# --- read_file_content 헬퍼 함수 (동일) ---
-async def read_file_content(file: UploadFile) -> str:
-    content_bytes = await file.read()
-    if file.filename.endswith(".xlsx"):
-        file_stream = io.BytesIO(content_bytes)
-        excel_data = pd.read_excel(file_stream, sheet_name=None, engine="openpyxl")
-        report_content = ""
-        for sheet_name, df in excel_data.items():
-            report_content += f"--- 시트: {sheet_name} ---\n"
-            report_content += df.to_string(index=False) + "\n\n"
-        return report_content
-    elif file.filename.endswith(".txt"):
-        return content_bytes.decode("utf-8")
-    else:
-        try:
-            return content_bytes.decode("utf-8")
-        except UnicodeDecodeError:
-            raise HTTPException(
-                status_code=400, detail=f"파일 디코딩 실패: {file.filename}"
-            )
 
 
 # --- API 호출 함수 (동일) ---

@@ -112,10 +112,14 @@ if (uploadForm) {
       formData.append("report_files", file);
     }
 
+    // ✨ (수정) '업로드 중' 메시지를 즉시 표시
+    // (이 메시지는 아래 'try' 블록 내부에서 '분석 완료' 메시지로 대체됩니다)
     statusDiv.textContent = `업로드 중... (총 ${
       planFiles.length + reportFiles.length
     }개 파일)`;
-    resultContainer.innerHTML = "";
+
+    // ✨ (수정) resultContainer.innerHTML = ""; 를 try 블록 내부로 이동
+    // resultContainer.innerHTML = ""; // <-- 이 줄을 삭제
 
     try {
       const response = await fetch(UPLOAD_URL, {
@@ -127,7 +131,13 @@ if (uploadForm) {
         const responseData = await response.json();
         console.log("서버 응답:", responseData);
 
+        // ✨ (수정)
+        // 응답을 성공적으로 받은 *이후*에
+        // 이전 결과(resultContainer)와 상태(statusDiv)를 초기화/설정합니다.
+        resultContainer.innerHTML = ""; // <-- 이전 결과 삭제
+
         const summary = responseData.summary;
+        // '업로드 중' 메시지를 '분석 완료' 메시지로 덮어쓰기
         statusDiv.textContent = `✅ 분석 완료: ${summary.matched_count}건 매칭 성공, ${summary.unmatched_plans.length}건 계획서 매칭실패, ${summary.unmatched_reports.length}건 보고서 매칭실패`;
 
         // 매칭 실패 파일 표시
@@ -203,10 +213,12 @@ if (uploadForm) {
           }
         });
       } else {
+        // ✨ (수정) 실패 시에도 '업로드 중' 메시지를 덮어씁니다.
         statusDiv.textContent = `❌ 업로드 실패: ${response.statusText}`;
       }
     } catch (error) {
       console.error("업로드 중 오류 발생:", error);
+      // ✨ (수정) 오류 발생 시에도 '업로드 중' 메시지를 덮어씁니다.
       statusDiv.textContent = `❌ 오류 발생: ${error.message}`;
     }
   });

@@ -309,18 +309,18 @@ button:hover {
 .board-table tbody tr:hover {
   background-color: #f5f5f5;
 }
-
+/* ✨ (수정) 컬럼 너비 재조정 */
 .board-table td:nth-child(1) {
   width: 10%;
   text-align: center;
 } /* 번호 */
 .board-table td:nth-child(2) {
-  width: 30%;
+  width: 25%;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  max-width: 150px;
-} /* 파일명 */
+  max-width: 130px;
+} /* 파일명 (축소) */
 .board-table td:nth-child(3) {
   width: 15%;
 } /* 작성자 */
@@ -329,15 +329,18 @@ button:hover {
 } /* 캠퍼스 */
 .board-table td:nth-child(5) {
   width: 10%;
+} /* ✨ 반 (신규) */
+.board-table td:nth-child(6) {
+  width: 10%;
   text-align: center;
   font-weight: 700;
   color: #007bff;
 } /* 점수 */
-.board-table td:nth-child(6) {
-  width: 20%;
+.board-table td:nth-child(7) {
+  width: 15%;
   font-size: 0.85rem;
   color: #777;
-} /* 제출일 */
+} /* 제출일 (축소) */
 
 /* (신규) 로딩 및 빈 상태 메시지 */
 .board-table .loading-row td,
