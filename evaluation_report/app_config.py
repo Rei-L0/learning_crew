@@ -17,9 +17,7 @@ DOWNLOADS_PATH = os.path.join(os.path.expanduser("~"), "Downloads")
 
 
 # --- Google AI API 설정 ---
-API_KEY = (
-    "AIzaSyDlyiS2521pfi_pgJngVS0sUnnVT1v0n9A"  # (보안상 실제 키는 환경 변수 사용 권장)
-)
+API_KEY = "API_KEY"  # (보안상 실제 키는 환경 변수 사용 권장)
 
 if not API_KEY:
     raise ValueError("API_KEY가 설정되지 않았습니다. config.py를 확인하세요.")

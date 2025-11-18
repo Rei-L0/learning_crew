@@ -102,7 +102,7 @@ def load_system_prompt(file_path: str = "prompts/evaluation_prompt.txt") -> str:
 
 
 # api_key = os.getenv("GOOGLE_API_KEY")
-api_key = "AIzaSyDlyiS2521pfi_pgJngVS0sUnnVT1v0n9A"
+api_key = "API_KEY"
 
 if not api_key:
     raise ValueError(
