@@ -7,7 +7,7 @@ body {
   background-color: #f4f7f6;
   color: #333;
   padding: 20px;
-  box-sizing: border-box;
+  box-sizing: border-box; /* 패딩이 너비에 포함되도록 */
 }
 
 h2,
@@ -58,12 +58,13 @@ button:hover {
   text-align: center;
 }
 
+/* --- (신규) 버튼처럼 보이는 링크 --- */
 .button-link {
   display: block;
   width: 100%;
-  max-width: 600px;
+  max-width: 600px; /* 업로드/세부정보 페이지는 600px 유지 */
   padding: 12px;
-  background-color: #28a745;
+  background-color: #28a745; /* 초록색 */
   color: white;
   border: none;
   border-radius: 5px;
@@ -88,16 +89,16 @@ button:hover {
   background: #ffffff;
   border: 1px solid #ddd;
   border-radius: 8px;
-  padding: 0;
+  padding: 0; /* 패딩은 내부 .result-item-container가 가짐 */
   margin-top: 20px;
   width: 100%;
-  max-width: 600px;
+  max-width: 600px; /* 업로드/세부정보 페이지는 600px 유지 */
   box-sizing: border-box;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-  overflow: hidden;
+  overflow: hidden; /* border-radius 적용을 위해 */
 }
 
-/* ... (기존 .result-item-container, .result-header, .result-content 등 스타일 동일) ... */
+/* 개별 결과 항목 (접기/펼치기 단위) */
 .result-item-container {
   padding: 0;
   border-bottom: 1px solid #eee;
@@ -105,6 +106,8 @@ button:hover {
 .result-item-container:last-child {
   border-bottom: none;
 }
+
+/* 1. 클릭할 헤더 */
 .result-header {
   cursor: pointer;
   padding: 24px;
@@ -114,28 +117,38 @@ button:hover {
   user-select: none;
   background-color: #fcfcfc;
 }
+
 .result-header h3 {
   margin: 0;
   color: #0056b3;
   text-align: left;
 }
+
+/* 2. 토글 아이콘 (장식) */
 .result-header::after {
   content: "▼";
   font-size: 0.8em;
   color: #888;
   transition: transform 0.2s ease;
 }
+
+/* 3. 펼쳐질 콘텐츠 (기본 숨김) */
 .result-content {
   display: none;
   padding: 0 24px 24px 24px;
   border-top: 1px solid #f0f0f0;
 }
+
+/* 4. 'active' 클래스가 붙었을 때 (펼쳐진 상태) */
 .result-item-container.active .result-content {
   display: block;
 }
+
 .result-item-container.active .result-header::after {
   transform: rotate(180deg);
 }
+
+/* 5. 에러 항목 */
 .result-item-container.error .result-header {
   cursor: default;
   background-color: #fff8f8;
@@ -144,12 +157,14 @@ button:hover {
   color: #d9534f;
 }
 .result-item-container.error .result-content {
-  display: block;
+  display: block; /* 에러는 항상 보임 */
 }
 .result-item-container.error .result-header::after {
   content: "⚠️";
   transform: none;
 }
+
+/* --- 결과 콘텐츠 내부 스타일 --- */
 .result-content h4 {
   margin-top: 24px;
   margin-bottom: 10px;
@@ -157,6 +172,7 @@ button:hover {
   border-left: 4px solid #007bff;
   padding-left: 8px;
 }
+
 .result-content .result-box {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -165,25 +181,30 @@ button:hover {
   padding: 16px;
   border-radius: 5px;
 }
+
 .result-content .result-item {
   display: flex;
   flex-direction: column;
 }
+
 .result-content .result-item strong {
   font-size: 0.9rem;
   color: #555;
   margin-bottom: 4px;
 }
+
 .result-content .result-item span {
   font-size: 1.5rem;
   font-weight: 700;
   color: #007bff;
 }
+
 .result-content ul {
   list-style-type: none;
   padding-left: 0;
   margin: 0;
 }
+
 .result-content ul li {
   background: #fdfdfd;
   border: 1px solid #eee;
@@ -192,6 +213,7 @@ button:hover {
   margin-bottom: 10px;
   line-height: 1.6;
 }
+
 .result-content ul li strong {
   color: #333;
   font-size: 1.1rem;
@@ -199,10 +221,12 @@ button:hover {
   margin-bottom: 6px;
   font-weight: 600;
 }
+
 .result-content ul li p {
   margin: 0;
   color: #555;
 }
+
 .result-content p {
   background: #f9f9f9;
   border-radius: 5px;
@@ -211,7 +235,7 @@ button:hover {
   margin: 0;
 }
 
-/* --- ✨ (신규) 필터 바 스타일 (board.html) --- */
+/* --- ✨ (수정) 필터 바 스타일 (board.html) --- */
 .filter-bar {
   display: grid;
   grid-template-columns: 1fr 1fr 1fr; /* 3열 그리드 */
@@ -222,7 +246,7 @@ button:hover {
   padding: 16px;
   margin-top: 20px;
   width: 100%;
-  max-width: 600px;
+  max-width: 1200px; /* ✨ 수정: 900px -> 1200px */
   box-sizing: border-box;
 }
 
@@ -275,7 +299,7 @@ button:hover {
   padding: 0; /* 테이블이 꽉 차도록 패딩 제거 */
   margin-top: 20px;
   width: 100%;
-  max-width: 600px;
+  max-width: 1200px; /* ✨ 수정: 900px -> 1200px */
   box-sizing: border-box;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
   overflow: hidden; /* 모서리 둥글게 */
@@ -290,7 +314,7 @@ button:hover {
 .board-table th,
 .board-table td {
   padding: 12px 15px;
-  text-align: left;
+  text-align: center;
   border-bottom: 1px solid #eee;
   font-size: 0.95rem;
 }
@@ -299,6 +323,9 @@ button:hover {
   background-color: #f9f9f9;
   font-weight: 600;
   color: #333;
+  /* --- ✨ (수정) 헤더 중앙 정렬 및 한 줄 처리 --- */
+  text-align: center;
+  white-space: nowrap;
 }
 
 .board-table tbody tr {
@@ -309,27 +336,28 @@ button:hover {
 .board-table tbody tr:hover {
   background-color: #f5f5f5;
 }
-/* ✨ (수정) 컬럼 너비 재조정 */
+
+/* --- ✨ (수정) 컬럼 너비 재조정 (1200px 기준) --- */
 .board-table td:nth-child(1) {
-  width: 10%;
+  width: 5%;
   text-align: center;
 } /* 번호 */
 .board-table td:nth-child(2) {
-  width: 25%;
+  width: 40%; /* 파일명 (확대) */
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  max-width: 130px;
-} /* 파일명 (축소) */
+  text-align: left;
+}
 .board-table td:nth-child(3) {
-  width: 15%;
+  width: 10%;
 } /* 작성자 */
 .board-table td:nth-child(4) {
-  width: 15%;
+  width: 10%;
 } /* 캠퍼스 */
 .board-table td:nth-child(5) {
   width: 10%;
-} /* ✨ 반 (신규) */
+} /* 반 */
 .board-table td:nth-child(6) {
   width: 10%;
   text-align: center;
@@ -337,10 +365,11 @@ button:hover {
   color: #007bff;
 } /* 점수 */
 .board-table td:nth-child(7) {
-  width: 15%;
-  font-size: 0.85rem;
+  width: 15%; /* 제출일 (확대) */
+  font-size: 0.9rem;
   color: #777;
-} /* 제출일 (축소) */
+  white-space: nowrap; /* ✨ 제출일 한 줄 처리 */
+}
 
 /* (신규) 로딩 및 빈 상태 메시지 */
 .board-table .loading-row td,

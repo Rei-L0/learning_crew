@@ -336,7 +336,7 @@ async def process_single_pair(plan_file: UploadFile, report_file: UploadFile, ke
 
             await asyncio.to_thread(
                 save_result_to_db,
-                report_file.filename,
+                os.path.splitext(report_file.filename)[0],
                 total,
                 photo_count,
                 cleaned_string,
