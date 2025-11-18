@@ -7,6 +7,12 @@ body {
   background-color: #f4f7f6;
   color: #333;
   padding: 20px;
+  box-sizing: border-box; /* 패딩이 너비에 포함되도록 */
+}
+
+h2,
+h3 {
+  text-align: center;
 }
 
 form {
@@ -16,8 +22,9 @@ form {
   padding: 24px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
   width: 100%;
-  max-width: 500px;
+  max-width: 600px;
   box-sizing: border-box;
+  margin-top: 20px;
 }
 
 input[type="file"] {
@@ -36,6 +43,7 @@ button {
   cursor: pointer;
   font-size: 1rem;
   font-weight: 600;
+  transition: background-color 0.2s ease;
 }
 
 button:hover {
@@ -47,30 +55,117 @@ button:hover {
   font-size: 0.9rem;
   color: #555;
   font-weight: 500;
+  text-align: center;
 }
 
-/* --- ✨ (추가) 결과 표시 스타일 --- */
+/* --- ✨ (신규) 버튼처럼 보이는 링크 --- */
+.button-link {
+  display: block;
+  width: 100%;
+  max-width: 600px;
+  padding: 12px;
+  background-color: #28a745; /* 초록색 */
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: 600;
+  text-align: center;
+  text-decoration: none;
+  box-sizing: border-box;
+  margin-bottom: 10px;
+  transition: background-color 0.2s ease;
+}
 
-#resultContainer {
+.button-link:hover {
+  background-color: #218838;
+}
+
+/* --- 결과 표시 스타일 (index.html, detail.html 공용) --- */
+
+#resultContainer,
+#detailContainer {
   background: #ffffff;
   border: 1px solid #ddd;
   border-radius: 8px;
-  padding: 24px;
+  padding: 0; /* 패딩은 내부 .result-item-container가 가짐 */
   margin-top: 20px;
   width: 100%;
-  max-width: 500px;
+  max-width: 600px; /* 너비 증가 */
   box-sizing: border-box;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  overflow: hidden; /* border-radius 적용을 위해 */
 }
 
-#resultContainer h3 {
-  margin-top: 0;
+/* 개별 결과 항목 (접기/펼치기 단위) */
+.result-item-container {
+  padding: 0;
+  border-bottom: 1px solid #eee;
+}
+.result-item-container:last-child {
+  border-bottom: none;
+}
+
+/* 1. 클릭할 헤더 */
+.result-header {
+  cursor: pointer;
+  padding: 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  user-select: none;
+  background-color: #fcfcfc;
+}
+
+.result-header h3 {
+  margin: 0;
   color: #0056b3;
-  border-bottom: 2px solid #007bff;
-  padding-bottom: 10px;
+  text-align: left;
 }
 
-#resultContainer h4 {
+/* 2. 토글 아이콘 (장식) */
+.result-header::after {
+  content: "▼";
+  font-size: 0.8em;
+  color: #888;
+  transition: transform 0.2s ease;
+}
+
+/* 3. 펼쳐질 콘텐츠 (기본 숨김) */
+.result-content {
+  display: none;
+  padding: 0 24px 24px 24px;
+  border-top: 1px solid #f0f0f0;
+}
+
+/* 4. 'active' 클래스가 붙었을 때 (펼쳐진 상태) */
+.result-item-container.active .result-content {
+  display: block;
+}
+
+.result-item-container.active .result-header::after {
+  transform: rotate(180deg);
+}
+
+/* 5. 에러 항목 */
+.result-item-container.error .result-header {
+  cursor: default;
+  background-color: #fff8f8;
+}
+.result-item-container.error .result-header h3 {
+  color: #d9534f;
+}
+.result-item-container.error .result-content {
+  display: block; /* 에러는 항상 보임 */
+}
+.result-item-container.error .result-header::after {
+  content: "⚠️";
+  transform: none;
+}
+
+/* --- 결과 콘텐츠 내부 스타일 --- */
+.result-content h4 {
   margin-top: 24px;
   margin-bottom: 10px;
   color: #333;
@@ -78,7 +173,7 @@ button:hover {
   padding-left: 8px;
 }
 
-#resultContainer .result-box {
+.result-content .result-box {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 16px;
@@ -87,56 +182,52 @@ button:hover {
   border-radius: 5px;
 }
 
-#resultContainer .result-item {
+.result-content .result-item {
   display: flex;
   flex-direction: column;
 }
 
-#resultContainer .result-item strong {
+.result-content .result-item strong {
   font-size: 0.9rem;
   color: #555;
   margin-bottom: 4px;
 }
 
-#resultContainer .result-item span {
+.result-content .result-item span {
   font-size: 1.5rem;
   font-weight: 700;
   color: #007bff;
 }
 
-#resultContainer ul {
+.result-content ul {
   list-style-type: none;
   padding-left: 0;
   margin: 0;
 }
 
-/* '항목별 세부 평가' 목록의 li 스타일을 수정합니다. */
-#resultContainer ul li {
+.result-content ul li {
   background: #fdfdfd;
   border: 1px solid #eee;
   border-radius: 5px;
-  padding: 16px; /* 내부 여백을 조금 더 줍니다 */
-  margin-bottom: 10px; /* 항목 간 간격 */
-  line-height: 1.6; /* 줄 간격 */
+  padding: 16px;
+  margin-bottom: 10px;
+  line-height: 1.6;
 }
 
-/* <li> 안의 <strong> 태그 (e.g., "계획 구체성 (10점)") */
-#resultContainer ul li strong {
+.result-content ul li strong {
   color: #333;
-  font-size: 1.1rem; /* 제목이므로 살짝 키웁니다 */
-  display: block; /* <p> 태그와 줄바꿈을 위해 block 요소로 변경 */
-  margin-bottom: 6px; /* 본문과 살짝 띄웁니다 */
-  font-weight: 600; /* 굵게 */
+  font-size: 1.1rem;
+  display: block;
+  margin-bottom: 6px;
+  font-weight: 600;
 }
 
-/* <li> 안의 <p> 태그 (평가 근거 텍스트) */
-#resultContainer ul li p {
-  margin: 0; /* <p> 태그의 기본 마진을 제거합니다 */
-  color: #555; /* 본문 텍스트 색상 */
+.result-content ul li p {
+  margin: 0;
+  color: #555;
 }
 
-/* '최종 코멘트' <p> 태그 스타일 (기존 스타일) */
-#resultContainer p {
+.result-content p {
   background: #f9f9f9;
   border-radius: 5px;
   padding: 16px;
@@ -144,58 +235,75 @@ button:hover {
   margin: 0;
 }
 
-/* --- ✨ (추가) 접기/펼치기 스타일 --- */
-
-/* (수정) 기존 컨테이너의 패딩을 0으로 변경 (헤더/콘텐츠에 개별 적용) */
-#resultContainer .result-item-container {
-  padding: 0;
-  overflow: hidden; /* border-radius가 내부 요소에도 적용되도록 */
+/* --- ✨ (신규) 게시판 목록 스타일 (board.html) --- */
+#boardContainer {
+  background: #ffffff;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 24px;
+  margin-top: 20px;
+  width: 100%;
+  max-width: 600px;
+  box-sizing: border-box;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
 }
 
-/* 1. 클릭할 헤더 (새 스타일) */
-.result-header {
-  cursor: pointer;
-  padding: 24px; /* 기존 컨테이너의 패딩을 헤더가 담당 */
+.board-item {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  user-select: none; /* 클릭 시 텍스트 드래그 방지 */
+  padding: 16px;
+  border-bottom: 1px solid #eee;
+  text-decoration: none;
+  color: #333;
+  transition: background-color 0.2s ease;
 }
 
-/* 2. 토글 아이콘 (장식) */
-.result-header::after {
-  content: "▼"; /* 닫힌 상태 아이콘 */
-  font-size: 0.8em;
-  color: #888;
-  transition: transform 0.2s ease;
+.board-item:hover {
+  background-color: #f9f9f9;
 }
 
-/* 3. (핵심) 펼쳐질 콘텐츠 (기본 숨김) */
-.result-content {
-  display: none;
-  padding: 0 24px 24px 24px; /* 상단 패딩 제외, 좌/우/하단 패딩 적용 */
-  border-top: 1px solid #f0f0f0; /* 헤더와 콘텐츠 구분선 */
+.board-item:last-child {
+  border-bottom: none;
 }
 
-/* 4. (핵심) 'active' 클래스가 붙었을 때의 스타일 */
-.result-item-container.active .result-content {
-  display: block; /* 콘텐츠 보이기 */
+.board-item-info {
+  display: flex;
+  flex-direction: column;
 }
 
-.result-item-container.active .result-header::after {
-  transform: rotate(180deg); /* 아이콘 180도 회전 */
+.board-item-filename {
+  font-weight: 600;
+  font-size: 1.1rem;
+  margin-bottom: 4px;
 }
 
-/* 5. (예외) 에러가 발생한 항목은 항상 펼쳐둠 */
-.result-item-container.error .result-header {
-  cursor: default; /* 에러 항목은 클릭 비활성화 */
+.board-item-date {
+  font-size: 0.85rem;
+  color: #777;
 }
 
-.result-item-container.error .result-content {
-  display: block; /* 에러 콘텐츠는 항상 보이기 */
+.board-item-score {
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: #007bff;
 }
 
-.result-item-container.error .result-header::after {
-  content: "⚠️"; /* 에러 아이콘 */
+/* --- ✨ (신규) detail.html용 단일 항목 스타일 --- */
+/* detail.html에서는 .result-item-container가 1개만 있으므로, 
+   헤더 클릭 기능을 비활성화하고 항상 펼쳐진 상태로 만듭니다. */
+#detailContainer .result-item-container {
+  border-bottom: none;
+}
+#detailContainer .result-header {
+  cursor: default;
+  background-color: #fff;
+}
+#detailContainer .result-header::after {
+  content: "📋"; /* 아이콘 변경 */
   transform: none;
+}
+#detailContainer .result-content {
+  display: block; /* 항상 보이기 */
+  border-top: 1px solid #f0f0f0;
 }

@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>분석 결과 세부 내용</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <h2>분석 결과 세부 내용</h2>
+
+    <a href="board.html" class="button-link" style="background-color: #6c757d"
+      >게시판 목록으로 돌아가기</a
+    >
+
+    <div id="detailContainer">
+      <div id="detailLoading">세부 내용을 불러오는 중입니다...</div>
+    </div>
+
+    <!-- 
+      ✨ (중요) 
+      renderResultHTML 함수를 재사용하기 위해 원본 script.js를 로드합니다.
+      이 파일은 detail.js 보다 먼저 로드되어야 합니다.
+    -->
+    <script src="script.js"></script>
+    <script src="detail.js"></script>
+  </body>
+</html>
