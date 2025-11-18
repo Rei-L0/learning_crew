@@ -1,146 +1,145 @@
 body {
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    min-height: 90vh;
-    background-color: #f4f7f6;
-    color: #333;
-    padding: 20px;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-height: 90vh;
+  background-color: #f4f7f6;
+  color: #333;
+  padding: 20px;
 }
 
 form {
-    background: #ffffff;
-    border: 1px solid #ddd;
-    border-radius: 8px;
-    padding: 24px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-    width: 100%;
-    max-width: 500px;
-    box-sizing: border-box;
+  background: #ffffff;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 24px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  width: 100%;
+  max-width: 500px;
+  box-sizing: border-box;
 }
 
 input[type="file"] {
-    margin-bottom: 16px;
-    font-size: 1rem;
-    width: 100%;
+  margin-bottom: 16px;
+  font-size: 1rem;
+  width: 100%;
 }
 
 button {
-    width: 100%;
-    padding: 12px;
-    background-color: #007bff;
-    color: white;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    font-size: 1rem;
-    font-weight: 600;
+  width: 100%;
+  padding: 12px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: 600;
 }
 
 button:hover {
-    background-color: #0056b3;
+  background-color: #0056b3;
 }
 
 #status {
-    margin-top: 20px;
-    font-size: 0.9rem;
-    color: #555;
-    font-weight: 500;
+  margin-top: 20px;
+  font-size: 0.9rem;
+  color: #555;
+  font-weight: 500;
 }
-
 
 /* --- ✨ (추가) 결과 표시 스타일 --- */
 
 #resultContainer {
-    background: #ffffff;
-    border: 1px solid #ddd;
-    border-radius: 8px;
-    padding: 24px;
-    margin-top: 20px;
-    width: 100%;
-    max-width: 500px;
-    box-sizing: border-box;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  background: #ffffff;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 24px;
+  margin-top: 20px;
+  width: 100%;
+  max-width: 500px;
+  box-sizing: border-box;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
 }
 
 #resultContainer h3 {
-    margin-top: 0;
-    color: #0056b3;
-    border-bottom: 2px solid #007bff;
-    padding-bottom: 10px;
+  margin-top: 0;
+  color: #0056b3;
+  border-bottom: 2px solid #007bff;
+  padding-bottom: 10px;
 }
 
 #resultContainer h4 {
-    margin-top: 24px;
-    margin-bottom: 10px;
-    color: #333;
-    border-left: 4px solid #007bff;
-    padding-left: 8px;
+  margin-top: 24px;
+  margin-bottom: 10px;
+  color: #333;
+  border-left: 4px solid #007bff;
+  padding-left: 8px;
 }
 
 #resultContainer .result-box {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 16px;
-    background: #f9f9f9;
-    padding: 16px;
-    border-radius: 5px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  background: #f9f9f9;
+  padding: 16px;
+  border-radius: 5px;
 }
 
 #resultContainer .result-item {
-    display: flex;
-    flex-direction: column;
+  display: flex;
+  flex-direction: column;
 }
 
 #resultContainer .result-item strong {
-    font-size: 0.9rem;
-    color: #555;
-    margin-bottom: 4px;
+  font-size: 0.9rem;
+  color: #555;
+  margin-bottom: 4px;
 }
 
 #resultContainer .result-item span {
-    font-size: 1.5rem;
-    font-weight: 700;
-    color: #007bff;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #007bff;
 }
 
 #resultContainer ul {
-    list-style-type: none;
-    padding-left: 0;
-    margin: 0;
+  list-style-type: none;
+  padding-left: 0;
+  margin: 0;
 }
 
 /* '항목별 세부 평가' 목록의 li 스타일을 수정합니다. */
 #resultContainer ul li {
-    background: #fdfdfd;
-    border: 1px solid #eee;
-    border-radius: 5px;
-    padding: 16px; /* 내부 여백을 조금 더 줍니다 */
-    margin-bottom: 10px; /* 항목 간 간격 */
-    line-height: 1.6; /* 줄 간격 */
+  background: #fdfdfd;
+  border: 1px solid #eee;
+  border-radius: 5px;
+  padding: 16px; /* 내부 여백을 조금 더 줍니다 */
+  margin-bottom: 10px; /* 항목 간 간격 */
+  line-height: 1.6; /* 줄 간격 */
 }
 
 /* <li> 안의 <strong> 태그 (e.g., "계획 구체성 (10점)") */
 #resultContainer ul li strong {
-    color: #333;
-    font-size: 1.1rem; /* 제목이므로 살짝 키웁니다 */
-    display: block; /* <p> 태그와 줄바꿈을 위해 block 요소로 변경 */
-    margin-bottom: 6px; /* 본문과 살짝 띄웁니다 */
-    font-weight: 600; /* 굵게 */
+  color: #333;
+  font-size: 1.1rem; /* 제목이므로 살짝 키웁니다 */
+  display: block; /* <p> 태그와 줄바꿈을 위해 block 요소로 변경 */
+  margin-bottom: 6px; /* 본문과 살짝 띄웁니다 */
+  font-weight: 600; /* 굵게 */
 }
 
 /* <li> 안의 <p> 태그 (평가 근거 텍스트) */
 #resultContainer ul li p {
-    margin: 0; /* <p> 태그의 기본 마진을 제거합니다 */
-    color: #555; /* 본문 텍스트 색상 */
+  margin: 0; /* <p> 태그의 기본 마진을 제거합니다 */
+  color: #555; /* 본문 텍스트 색상 */
 }
 
 /* '최종 코멘트' <p> 태그 스타일 (기존 스타일) */
 #resultContainer p {
-    background: #f9f9f9;
-    border-radius: 5px;
-    padding: 16px;
-    line-height: 1.6;
-    margin: 0;
+  background: #f9f9f9;
+  border-radius: 5px;
+  padding: 16px;
+  line-height: 1.6;
+  margin: 0;
 }

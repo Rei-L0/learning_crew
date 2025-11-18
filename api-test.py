@@ -7,36 +7,42 @@ import logging
 # 로깅 설정
 logging.basicConfig(
     level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s',
-    datefmt='%Y-%m-%d %H:%M:%S'
+    format="%(asctime)s - %(levelname)s - %(message)s",
+    datefmt="%Y-%m-%d %H:%M:%S",
 )
 logger = logging.getLogger(__name__)
 
 # Excel 파일 읽기
 try:
     import pandas as pd
+
     HAS_PANDAS = True
 except ImportError:
     HAS_PANDAS = False
     try:
         import openpyxl
+
         HAS_OPENPYXL = True
     except ImportError:
         HAS_OPENPYXL = False
+
 
 # 파일 읽기 함수 (여러 인코딩 시도)
 def read_file_with_encoding(file_path: str) -> str:
     """파일을 읽어서 반환 (여러 인코딩 시도)"""
     encodings = ["utf-8", "utf-8-sig", "cp949", "euc-kr", "latin1"]
-    
+
     for encoding in encodings:
         try:
             with open(file_path, "r", encoding=encoding) as f:
                 return f.read()
         except (UnicodeDecodeError, FileNotFoundError):
             continue
-    
-    raise FileNotFoundError(f"파일을 찾을 수 없거나 인코딩을 확인할 수 없습니다: {file_path}")
+
+    raise FileNotFoundError(
+        f"파일을 찾을 수 없거나 인코딩을 확인할 수 없습니다: {file_path}"
+    )
+
 
 # Excel 파일 읽기 함수
 def read_excel_file(file_path: str) -> str:
@@ -45,36 +51,42 @@ def read_excel_file(file_path: str) -> str:
         try:
             excel_file = pd.ExcelFile(file_path)
             content_parts = []
-            
+
             for sheet_name in excel_file.sheet_names:
                 df = pd.read_excel(excel_file, sheet_name=sheet_name)
                 content_parts.append(f"[시트: {sheet_name}]\n")
                 content_parts.append(df.to_string(index=False))
                 content_parts.append("\n\n")
-            
+
             return "\n".join(content_parts)
         except Exception as e:
             raise Exception(f"Excel 파일을 읽는 중 오류 발생: {e}")
     elif HAS_OPENPYXL:
         try:
             from openpyxl import load_workbook
+
             wb = load_workbook(file_path, data_only=True)
             content_parts = []
-            
+
             for sheet_name in wb.sheetnames:
                 ws = wb[sheet_name]
                 content_parts.append(f"[시트: {sheet_name}]\n")
-                
+
                 for row in ws.iter_rows(values_only=True):
-                    row_str = "\t".join(str(cell) if cell is not None else "" for cell in row)
+                    row_str = "\t".join(
+                        str(cell) if cell is not None else "" for cell in row
+                    )
                     content_parts.append(row_str)
                 content_parts.append("\n\n")
-            
+
             return "\n".join(content_parts)
         except Exception as e:
             raise Exception(f"Excel 파일을 읽는 중 오류 발생: {e}")
     else:
-        raise ImportError("Excel 파일을 읽으려면 pandas 또는 openpyxl이 필요합니다. 'pip install pandas openpyxl'을 실행하세요.")
+        raise ImportError(
+            "Excel 파일을 읽으려면 pandas 또는 openpyxl이 필요합니다. 'pip install pandas openpyxl'을 실행하세요."
+        )
+
 
 # 시스템 프롬프트 파일 읽기
 def load_system_prompt(file_path: str = "prompts/evaluation_prompt.txt") -> str:
@@ -88,11 +100,14 @@ def load_system_prompt(file_path: str = "prompts/evaluation_prompt.txt") -> str:
         pass  # 저장 실패해도 계속 진행
     return content
 
+
 # api_key = os.getenv("GOOGLE_API_KEY")
 api_key = "AIzaSyDlyiS2521pfi_pgJngVS0sUnnVT1v0n9A"
 
 if not api_key:
-    raise ValueError("GOOGLE_API_KEY environment variable is not set. Please set it or provide the API key directly.")
+    raise ValueError(
+        "GOOGLE_API_KEY environment variable is not set. Please set it or provide the API key directly."
+    )
 
 # 시스템 프롬프트 로드
 logger.info("시스템 프롬프트 로드 중...")
@@ -124,8 +139,8 @@ else:
     try:
         # 파일 확장자에 따라 적절한 함수 사용
         file_ext = os.path.splitext(report_file)[1].lower()
-        
-        if file_ext in ['.xlsx', '.xls']:
+
+        if file_ext in [".xlsx", ".xls"]:
             logger.info(f"Excel 파일 읽기: {report_file}")
             report_content = read_excel_file(report_file)
             print(f"Excel 파일을 읽었습니다: {report_file}")
