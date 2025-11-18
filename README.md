@@ -1,3 +1,6 @@
+# 가상환경 활성화
+python -m venv venv
+
 # 가상환경 실행
 
 (Window)
