@@ -1,10 +1,12 @@
 # 가상환경 실행
 
 (Window)
+
 1. python -m venv venv
 2. .\venv\Scripts\activate
 
 (Mac)
+
 1. python3 -m venv venv
 2. source venv/bin/activate
 
@@ -19,4 +21,4 @@ uvicorn app.main:app --reload
 # 엑셀 서버 실행
 
 1. cd evaluation_report/
-2. uvicorn server:app --reload
+2. python server.py
