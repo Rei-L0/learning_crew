@@ -25,9 +25,18 @@ logger = logging.getLogger(__name__)
 
 # --- FastAPI 앱 및 CORS 설정 ---
 app = FastAPI()
+# ✨ 프론트엔드 출처 (Origin)를 명시적으로 추가합니다.
+origins = [
+    "http://127.0.0.1",
+    "http://127.0.0.1:5500",  # 프론트엔드 개발 서버 포트
+    "http://localhost",
+    "http://localhost:5500",
+    "*",  # 와일드카드는 다른 모든 경우를 위해 유지
+]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=origins,  # 수정된 origins 리스트 사용
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
