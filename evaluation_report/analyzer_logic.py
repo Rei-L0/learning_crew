@@ -161,7 +161,7 @@ def get_matching_key(filename: str) -> str | None:
         return None
 
 
-# --- 파일 쌍/단일 파일 처리 로직 (server.py에서 이동) ---
+# --- 파일 쌍/단일 파일 처리 로직 (수정됨) ---
 async def process_single_pair(
     key: str,
     plan_file: Optional[UploadFile],
@@ -210,9 +210,7 @@ async def process_single_pair(
             raise ValueError("계획서/결과보고서 파일 내용이 비어있습니다.")
 
         # 3. API 호출
-        api_response_text = await gemini_api_caller(
-            system_prompt, combined_content
-        )  # call_gemini_api_async 호출
+        api_response_text = await gemini_api_caller(system_prompt, combined_content)
 
         try:
             # 4. JSON 파싱 및 오류 해결 (가장 바깥쪽 JSON 객체/배열 추출)
@@ -240,6 +238,7 @@ async def process_single_pair(
 
             data = json.loads(cleaned_string)
 
+            # ✨ 1. 단일 평가 결과 추출: 배열이면 첫 번째 객체만 추출
             data_to_save = data[0] if isinstance(data, list) and data else data
 
             total = data_to_save.get("total")
@@ -250,7 +249,10 @@ async def process_single_pair(
                     "JSON 응답에 'total' 또는 'photo_count_detected' 키가 누락되었습니다."
                 )
 
-            # 5. DB 저장 (db_utils로 이동)
+            # ✨ 2. 추출한 단일 객체를 JSON 문자열로 다시 변환 (DB 저장을 위해)
+            final_json_string = json.dumps(data_to_save, ensure_ascii=False)
+
+            # 5. DB 저장
             info = extract_info_from_filename(target_filename)
 
             await asyncio.to_thread(
@@ -258,7 +260,7 @@ async def process_single_pair(
                 os.path.splitext(target_filename)[0],
                 total,
                 photo_count,
-                cleaned_string,
+                final_json_string,  # <--- 단일 객체 JSON 문자열 저장
                 info.get("campus"),
                 info.get("class_name"),
                 info.get("author_name"),
@@ -280,7 +282,7 @@ async def process_single_pair(
             "key": key,
             "filename": target_filename,
             "status": "success",
-            "analysis_result": api_response_text,
+            "analysis_result": final_json_string,  # 단일 객체 JSON 문자열 반환
         }
     except Exception as e:
         logger.error(f"[{key}] 쌍 처리 중 오류: {e}")

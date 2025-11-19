@@ -172,6 +172,7 @@ def get_result_detail(result_id: int) -> dict:
             analysis_data = json.loads(row["analysis_json"])
         except json.JSONDecodeError:
             analysis_data = {"error": "저장된 JSON 데이터 파싱 실패"}
+            logger.error(f"DB 저장된 JSON 파싱 실패 (ID: {result_id})")
 
         return {"filename": row["filename"], "analysis_data": analysis_data}
     else:
