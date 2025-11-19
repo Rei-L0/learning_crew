@@ -1,5 +1,6 @@
 # config.py
 import os
+import dotenv
 
 # --- 경로 설정 ---
 # 1. config.py 파일이 있는 현재 디렉터리 (예: .../evaluation_report)
@@ -17,7 +18,7 @@ DOWNLOADS_PATH = os.path.join(os.path.expanduser("~"), "Downloads")
 
 
 # --- Google AI API 설정 ---
-API_KEY = "API_KEY"  # (보안상 실제 키는 환경 변수 사용 권장)
+API_KEY = os.getenv("GOOGLE_API_KEY")
 
 if not API_KEY:
     raise ValueError("API_KEY가 설정되지 않았습니다. config.py를 확인하세요.")

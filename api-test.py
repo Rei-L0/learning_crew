@@ -3,6 +3,11 @@ from google import genai
 from google.genai import types
 import os
 import logging
+from dotenv import load_dotenv  # ✨ 패키지 추가: 환경변수 로드용
+
+# --- ✨ 환경 변수 로드 ---
+# 현재 디렉토리의 .env 파일을 찾아서 환경 변수로 설정합니다.
+load_dotenv()
 
 # 로깅 설정
 logging.basicConfig(
@@ -12,7 +17,7 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-# Excel 파일 읽기
+# Excel 파일 읽기 라이브러리 확인
 try:
     import pandas as pd
 
@@ -91,26 +96,34 @@ def read_excel_file(file_path: str) -> str:
 # 시스템 프롬프트 파일 읽기
 def load_system_prompt(file_path: str = "prompts/evaluation_prompt.txt") -> str:
     """시스템 프롬프트 파일을 읽어서 반환"""
-    content = read_file_with_encoding(file_path)
-    # UTF-8로 다시 저장하여 다음번에는 UTF-8로 읽을 수 있도록 함
     try:
+        content = read_file_with_encoding(file_path)
+        # UTF-8로 다시 저장하여 다음번에는 UTF-8로 읽을 수 있도록 함
         with open(file_path, "w", encoding="utf-8") as f_out:
             f_out.write(content)
-    except:
-        pass  # 저장 실패해도 계속 진행
+    except FileNotFoundError:
+        logger.warning(f"프롬프트 파일을 찾을 수 없음: {file_path}, 기본값 사용")
+        return "당신은 유용한 도우미입니다."  # 기본 프롬프트
+    except Exception as e:
+        logger.warning(f"프롬프트 로드 중 오류: {e}")
+        pass
     return content
 
 
-# api_key = os.getenv("GOOGLE_API_KEY")
-api_key = "API_KEY"
+# --- ✨ API KEY 설정 변경 부분 ---
+# .env 파일이나 시스템 환경변수에서 GOOGLE_API_KEY를 가져옵니다.
+api_key = os.getenv("GOOGLE_API_KEY")
 
 if not api_key:
-    raise ValueError(
-        "GOOGLE_API_KEY environment variable is not set. Please set it or provide the API key directly."
-    )
+    logger.error("GOOGLE_API_KEY가 환경 변수에 설정되지 않았습니다.")
+    print("오류: .env 파일을 확인하거나 GOOGLE_API_KEY 환경 변수를 설정해주세요.")
+    # 스크립트 종료 (키가 없으면 진행 불가)
+    exit(1)
+
 
 # 시스템 프롬프트 로드
 logger.info("시스템 프롬프트 로드 중...")
+# (참고: prompts 폴더가 실행 위치에 있어야 합니다)
 system_prompt = load_system_prompt()
 logger.info("시스템 프롬프트 로드 완료")
 
@@ -118,26 +131,25 @@ logger.info("시스템 프롬프트 로드 완료")
 downloads_path = os.path.join(os.path.expanduser("~"), "Downloads")
 report_file = None
 
-# 읽을 파일명 (변경 가능)
-target_file_keywords = ["9월", "스터디", "이용호"]  # 파일명에 포함되어야 할 키워드
+# 읽을 파일명 키워드
+target_file_keywords = ["9월", "스터디", "이용호"]
 
 # 다운로드 폴더에서 파일명으로 검색
 if os.path.exists(downloads_path):
     for file in os.listdir(downloads_path):
-        # 모든 키워드가 파일명에 포함되어 있는지 확인
         if all(keyword in file for keyword in target_file_keywords):
             report_file = os.path.join(downloads_path, file)
             logger.info(f"파일 발견: {file}")
             break
 
+# 보고서 내용 로드
+report_content = "한국에 대해 알려줘"  # 기본값 (파일 없을 시)
+
 if not report_file or not os.path.exists(report_file):
-    logger.error(f"파일을 찾을 수 없습니다: {downloads_path}")
-    print(f"파일을 찾을 수 없습니다: {downloads_path}")
-    print("다운로드 폴더에서 파일을 확인하거나 직접 경로를 지정해주세요.")
-    report_content = "한국에 대해 알려줘"  # 기본값
+    logger.warning(f"파일을 찾을 수 없습니다: {downloads_path}")
+    print("다운로드 폴더에서 파일을 확인하거나 직접 경로를 지정해주세요. (기본값 사용)")
 else:
     try:
-        # 파일 확장자에 따라 적절한 함수 사용
         file_ext = os.path.splitext(report_file)[1].lower()
 
         if file_ext in [".xlsx", ".xls"]:
@@ -151,7 +163,6 @@ else:
     except Exception as e:
         logger.error(f"파일 읽기 실패: {e}")
         print(f"파일을 읽는 중 오류 발생: {e}")
-        report_content = "한국에 대해 알려줘"  # 기본값
 
 # Google AI API 호출
 logger.info("Google AI API 호출 중...")
@@ -166,9 +177,10 @@ try:
         contents=report_content,
     )
     logger.info("API 호출 성공")
+    print("\n--- 답변 ---")
+    print(response.text)
+    logger.info("완료")
+
 except Exception as e:
     logger.error(f"API 호출 실패: {e}")
-    raise
-
-print(response.text)
-logger.info("완료")
+    print(f"API 호출 중 오류가 발생했습니다: {e}")
