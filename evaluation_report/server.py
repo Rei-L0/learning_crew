@@ -1,8 +1,6 @@
 import logging
 from fastapi import FastAPI, UploadFile, File, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
-from google import genai
-from google.genai import types
 import asyncio
 from typing import List, Optional
 
@@ -10,7 +8,8 @@ from typing import List, Optional
 import app_config
 import file_utils
 import db_utils
-import analyzer_logic
+from gemini_service import GeminiService
+from analysis_service import AnalysisService
 
 
 # --- 로깅 설정 ---
@@ -40,6 +39,11 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# --- 서비스 초기화 ---
+gemini_service = GeminiService()
+analysis_service = AnalysisService(gemini_service)
+SYSTEM_PROMPT = "ERROR: PROMPT NOT LOADED"
+
 
 # --- FastAPI 이벤트 핸들러 (DB 초기화) ---
 @app.on_event("startup")
@@ -56,58 +60,6 @@ def startup_event():
     db_utils.init_db()
 
 
-# --- API 호출 비동기 래퍼 함수 ---
-async def call_gemini_api_async(system_prompt: str, content: str) -> str:
-    logger.info("Google AI API 비동기 래퍼 호출 중...")
-    try:
-        return await asyncio.to_thread(
-            analyzer_logic.call_gemini_api, system_prompt, content
-        )
-    except Exception as e:
-        logger.error(f"API 비동기 래퍼 호출 실패: {e}")
-        raise
-
-
-# --- ✨ [신규] API 속도 제한(Rate Limit) 처리를 위한 세마포어 및 래퍼 ---
-# 동시에 1개의 작업만 수행하도록 제한 (무료 티어 한계 극복용)
-api_semaphore = asyncio.Semaphore(1)
-
-SLEEP_TIME = 6
-
-
-async def process_with_rate_limit(
-    key, plan_file, report_file, system_prompt, gemini_caller
-):
-    """
-    세마포어를 사용하여 API 호출 빈도를 제어하는 래퍼 함수입니다.
-    작업 완료 후 6초 대기하여 분당 요청 횟수(RPM) 제한을 준수합니다.
-    """
-    async with api_semaphore:
-        try:
-            logger.info(f"[{key}] 속도 제한 래퍼 진입. 처리 시작...")
-            result = await analyzer_logic.process_single_pair(
-                key, plan_file, report_file, system_prompt, gemini_caller
-            )
-
-            # ✨ API 호출 후 6초 강제 대기 (Gemini Free Tier: 약 10 RPM)
-            logger.info(f"[{key}] API 호출 완료. Rate Limit 준수를 위해 6초 대기...")
-            await asyncio.sleep(SLEEP_TIME)
-
-            return result
-        except Exception as e:
-            logger.error(f"[{key}] 처리 중 예외 발생: {e}")
-            return {
-                "key": key,
-                "filename": (
-                    report_file.filename
-                    if report_file
-                    else (plan_file.filename if plan_file else "unknown")
-                ),
-                "status": "error",
-                "error": str(e),
-            }
-
-
 @app.get("/")
 def read_root():
     return {"message": "Gemini 분석 API 서버"}
@@ -121,51 +73,44 @@ async def upload_and_analyze(
     plans_map, reports_map = {}, {}
     all_keys = set()
 
+    # 매칭 키 추출 로직도 서비스로 위임
     for file in plan_files:
-        if key := analyzer_logic.get_matching_key(file.filename):
+        if key := analysis_service.get_matching_key(file.filename):
             plans_map[key] = file
             all_keys.add(key)
 
     for file in report_files:
-        if key := analyzer_logic.get_matching_key(file.filename):
+        if key := analysis_service.get_matching_key(file.filename):
             reports_map[key] = file
             all_keys.add(key)
 
     tasks = []
     for key in all_keys:
-        # ✨ 기존 process_single_pair 대신 process_with_rate_limit 사용
         tasks.append(
-            process_with_rate_limit(
+            analysis_service.process_single_pair(
                 key,
                 plans_map.get(key),
                 reports_map.get(key),
                 SYSTEM_PROMPT,
-                call_gemini_api_async,
             )
         )
 
-    # 모든 작업 비동기 실행 (세마포어에 의해 순차적으로 실행됨)
+    # 모든 작업 비동기 실행
     processing_results = await asyncio.gather(*tasks)
-
-    processed_keys = set(
-        item.get("key")
-        for item in processing_results
-        if item.get("key") and item.get("status") != "error"
-    )
 
     summary = {
         "total_plans": len(plan_files),
         "total_reports": len(report_files),
-        "processed_count": len(processing_results),  # 시도한 전체 쌍의 개수
+        "processed_count": len(processing_results),
         "unmatchable_plans": [
             f.filename
             for f in plan_files
-            if analyzer_logic.get_matching_key(f.filename) not in all_keys
+            if analysis_service.get_matching_key(f.filename) not in all_keys
         ],
         "unmatchable_reports": [
             f.filename
             for f in report_files
-            if analyzer_logic.get_matching_key(f.filename) not in all_keys
+            if analysis_service.get_matching_key(f.filename) not in all_keys
         ],
     }
     return {"summary": summary, "results": processing_results}
