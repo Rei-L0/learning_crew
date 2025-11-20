@@ -2,3 +2,5 @@
 /**/__pycache__/
 /evaluation_report/analysis_results.db
 .env
+/evaluation_report/debug
+.DS_Store

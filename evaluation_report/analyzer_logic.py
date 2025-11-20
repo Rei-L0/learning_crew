@@ -6,23 +6,47 @@ import logging
 import unicodedata
 import asyncio
 from typing import List, Optional, Callable, Awaitable
+import io
+import zipfile
 
 from fastapi import UploadFile, HTTPException
 from google import genai
 from google.genai import types
 import pandas as pd
-import io
+from openpyxl import load_workbook
 
 # 로컬 모듈 임포트
 import app_config
-import db_utils  # DB 저장 함수 호출을 위해 임포트
+import db_utils
 
 logger = logging.getLogger(__name__)
 
 
-# --- API 호출 함수 (동기 버전, to_thread로 호출될 예정) ---
+# --- ZIP 구조 기반 이미지 카운팅 함수 ---
+def count_images_in_excel(file_bytes: bytes) -> int:
+    """
+    엑셀 파일(.xlsx)을 ZIP으로 열어 'xl/media/' 폴더 내의 이미지 파일 개수를 직접 셉니다.
+    """
+    try:
+        with zipfile.ZipFile(io.BytesIO(file_bytes)) as z:
+            media_files = [
+                f
+                for f in z.namelist()
+                if f.startswith("xl/media/") and not f.endswith("/")
+            ]
+            count = len(media_files)
+            logger.info(f"ZIP 구조 분석 결과 이미지 발견: {count}개 ({media_files})")
+            return count
+    except zipfile.BadZipFile:
+        logger.warning("파일이 올바른 ZIP(XLSX) 형식이 아닙니다.")
+        return 0
+    except Exception as e:
+        logger.warning(f"이미지 카운팅 중 오류 발생: {e}")
+        return 0
+
+
+# --- API 호출 함수 (동기) ---
 def call_gemini_api(system_prompt: str, content: str) -> str:
-    """Google AI API를 호출하고 응답 텍스트를 반환합니다. (동기)"""
     if system_prompt == "ERROR: PROMPT NOT LOADED":
         raise ValueError("시스템 프롬프트가 올바르게 로드되지 않았습니다.")
     logger.info("Google AI API 호출 중 (동기)...")
@@ -39,25 +63,16 @@ def call_gemini_api(system_prompt: str, content: str) -> str:
         raise
 
 
-# --- 파일명에서 정보 추출 (server.py에서 이동) ---
+# --- 파일명에서 정보 추출 ---
 def extract_info_from_filename(filename: str) -> dict:
-    """
-    파일명에서 캠퍼스, 반, 작성자 정보를 추출합니다. (기존 로직 유지)
-    """
     CAMPUS_LIST_RAW = ["광주", "구미", "서울", "대전", "부울경"]
     CAMPUS_LIST = [unicodedata.normalize("NFC", s) for s in CAMPUS_LIST_RAW]
     CLASS_REGEX = r"(\d+반)"
 
-    # --- (중략) 기존 server.py의 extract_info_from_filename 함수 전체 내용 ---
     try:
-        # 1. 확장자 제거
         name_without_ext = os.path.splitext(filename)[0]
-        # 2. 파일명을 NFC로 정규화 (macOS NFD 호환)
         name_without_ext = unicodedata.normalize("NFC", name_without_ext)
-
-        # 3. `_` 기준으로 분리
         parts = name_without_ext.split("_")
-        logger.info(f"파일명 분리 결과: {parts}")
 
         info = {"campus": None, "class_name": None, "author_name": None}
 
@@ -73,7 +88,6 @@ def extract_info_from_filename(filename: str) -> dict:
                 info["class_name"] = class_candidate
                 author_clean = re.split(r"[\.\s-]", author_raw, 1)[0]
                 info["author_name"] = author_clean
-                logger.info(f"파일명 정보 추출 성공: {info}")
                 return info
 
         for part in parts:
@@ -93,62 +107,68 @@ def extract_info_from_filename(filename: str) -> dict:
                 info["author_name"] = part
                 break
 
-        if info["campus"] or info["class_name"]:
-            logger.warning(f"파일명 부분 추출: {filename} -> {info} (예상 구조와 다름)")
-            return info
+        return info
 
     except Exception as e:
-        logger.error(f"파일명 정보 추출 중 예외 발생: {filename} (오류: {e})")
-
-    logger.warning(
-        f"파일명 정보 추출 실패: {filename} (예상 구조: ..._[캠퍼스]_[반]_[이름]...)"
-    )
-    return {"campus": None, "class_name": None, "author_name": None}
+        logger.error(f"파일명 정보 추출 중 예외: {e}")
+        return {"campus": None, "class_name": None, "author_name": None}
 
 
-# --- 파일 내용 읽기 (server.py에서 이동) ---
+# --- 파일 내용 읽기 ---
 async def read_file_content(file: UploadFile) -> str:
-    """UploadFile을 읽어 내용(str)을 반환 (엑셀/CSV/텍스트 지원)"""
+    await file.seek(0)
     content_bytes = await file.read()
     filename_lower = file.filename.lower()
 
     if filename_lower.endswith(".xlsx"):
-        logger.info(f"엑셀 파일(.xlsx) 파싱 중: {file.filename}")
         file_stream = io.BytesIO(content_bytes)
+        # 텍스트 읽기는 기존대로 pandas/openpyxl 사용
         excel_data = pd.read_excel(file_stream, sheet_name=None, engine="openpyxl")
         report_content = ""
+
         for sheet_name, df in excel_data.items():
             report_content += f"--- 시트: {sheet_name} ---\n"
+
+            # ✨ [수정] 데이터 정제 로직 추가
+            # 1. 모든 NaN(빈 값)을 빈 문자열("")로 변경
+            df = df.fillna("")
+
+            # 2. 컬럼 이름에 'Unnamed'가 포함되어 있으면 빈 문자열로 변경
+            # (헤더가 없는 경우 보기 흉한 'Unnamed: 1' 등을 제거)
+            new_columns = []
+            for col in df.columns:
+                if "Unnamed" in str(col):
+                    new_columns.append("")
+                else:
+                    new_columns.append(str(col))
+            df.columns = new_columns
+
+            # 3. 문자열로 변환 (index=False로 행 번호 제거)
             report_content += df.to_string(index=False) + "\n\n"
+
         return report_content
 
     elif filename_lower.endswith(".txt") or filename_lower.endswith(".csv"):
-        logger.info(f"텍스트/CSV 파일(.txt/.csv) 파싱 중: {file.filename}")
         try:
             return content_bytes.decode("utf-8")
         except UnicodeDecodeError:
             try:
                 return content_bytes.decode("cp949")
-            except Exception as e:
-                logger.error(f"파일 디코딩 실패 (UTF-8, CP949): {file.filename} - {e}")
+            except:
                 raise HTTPException(
                     status_code=400, detail=f"파일 디코딩 실패: {file.filename}"
                 )
-
     else:
-        logger.warning(f"지원하지 않는 파일 형식: {file.filename}. utf-8로 시도.")
         try:
             return content_bytes.decode("utf-8")
-        except UnicodeDecodeError:
-            logger.error(f"파일 디코딩 실패: {file.filename}")
+        except:
             raise HTTPException(
-                status_code=400, detail=f"파일 디코딩 실패: {file.filename}"
+                status_code=400, detail=f"지원하지 않는 파일: {file.filename}"
             )
 
 
-# --- 매칭 키 추출 (server.py에서 이동) ---
+# --- 매칭 키 추출 ---
 def get_matching_key(filename: str) -> str | None:
-    """파일명에서 매칭을 위한 키를 추출합니다. (캠퍼스_반_이름)"""
     try:
         name_without_ext = os.path.splitext(filename)[0]
         name_without_ext = unicodedata.normalize("NFC", name_without_ext)
@@ -156,41 +176,51 @@ def get_matching_key(filename: str) -> str | None:
         if len(parts) >= 3:
             return "_".join(parts[-3:])
         return None
-    except Exception as e:
-        logger.error(f"키 추출 중 예외 발생: {filename} - {e}")
+    except:
         return None
 
 
-# --- 파일 쌍/단일 파일 처리 로직 (수정됨) ---
+# --- 파일 쌍/단일 파일 처리 로직 ---
 async def process_single_pair(
     key: str,
     plan_file: Optional[UploadFile],
     report_file: Optional[UploadFile],
     system_prompt: str,
-    gemini_api_caller: Callable[
-        [str, str], Awaitable[str]
-    ],  # 비동기 호출 함수 타입 힌트
+    gemini_api_caller: Callable[[str, str], Awaitable[str]],
 ):
     logger.info(f"[{key}] 쌍 처리 시작...")
-    api_response_text = ""
 
     target_filename = (
         report_file.filename
         if report_file
         else (plan_file.filename if plan_file else None)
     )
-
     if not target_filename:
-        logger.error(f"[{key}] 처리할 파일이 없습니다.")
-        return {
-            "key": key,
-            "filename": "N/A",
-            "status": "error",
-            "error": "처리할 파일(계획서 또는 보고서)이 없습니다.",
-        }
+        return {"key": key, "status": "error", "error": "파일 없음"}
 
     try:
-        # 1. 파일 내용 로드
+        # 1. 이미지 카운팅 (ZIP 방식)
+        actual_photo_count = 0
+
+        if plan_file and plan_file.filename.lower().endswith(".xlsx"):
+            await plan_file.seek(0)
+            p_bytes = await plan_file.read()
+            p_count = count_images_in_excel(p_bytes)
+            actual_photo_count += p_count
+            logger.info(f"[{key}] 계획서 이미지: {p_count}장")
+            await plan_file.seek(0)
+
+        if report_file and report_file.filename.lower().endswith(".xlsx"):
+            await report_file.seek(0)
+            r_bytes = await report_file.read()
+            r_count = count_images_in_excel(r_bytes)
+            actual_photo_count += r_count
+            logger.info(f"[{key}] 결과보고서 이미지: {r_count}장")
+            await report_file.seek(0)
+
+        logger.info(f"[{key}] 총 합산 이미지 개수: {actual_photo_count}장")
+
+        # 2. 파일 내용 로드 (텍스트 추출)
         plan_content = ""
         if plan_file:
             plan_content = await read_file_content(plan_file)
@@ -199,7 +229,7 @@ async def process_single_pair(
         if report_file:
             report_content = await read_file_content(report_file)
 
-        # 2. API 입력 내용 준비
+        # 3. API 입력 내용 준비
         combined_content = ""
         if plan_content:
             combined_content += f"[계획서]\n{plan_content}\n\n"
@@ -207,21 +237,38 @@ async def process_single_pair(
             combined_content += f"[결과보고서]\n{report_content}\n\n"
 
         if not combined_content:
-            raise ValueError("계획서/결과보고서 파일 내용이 비어있습니다.")
+            raise ValueError("파일 내용이 비어있습니다.")
 
-        # 3. API 호출
+        # ------------------------------------------------------------------
+        # ✨ [디버깅용] Gemini에게 전송되는 내용을 텍스트 파일로 저장
+        # ------------------------------------------------------------------
+        debug_filename = f"debug/debug_payload_{key}.txt"
+        try:
+            with open(debug_filename, "w", encoding="utf-8") as f:
+                f.write("--- SYSTEM PROMPT ---\n")
+                f.write(
+                    system_prompt[:500] + "\n... (생략) ...\n\n"
+                )  # 시스템 프롬프트 앞부분만
+                f.write("--- USER CONTENT (Combined) ---\n")
+                f.write(combined_content)
+            logger.info(
+                f"[{key}] Gemini 전송 내용이 '{debug_filename}'에 저장되었습니다."
+            )
+        except Exception as e:
+            logger.warning(f"[{key}] 디버그 파일 저장 실패: {e}")
+        # ------------------------------------------------------------------
+
+        # 4. API 호출
         api_response_text = await gemini_api_caller(system_prompt, combined_content)
 
         try:
-            # 4. JSON 파싱 및 오류 해결 (가장 바깥쪽 JSON 객체/배열 추출)
+            # 5. JSON 파싱
             start_index_arr = api_response_text.find("[")
             end_index_arr = api_response_text.rfind("]")
-
             start_index_obj = api_response_text.find("{")
             end_index_obj = api_response_text.rfind("}")
 
             cleaned_string = ""
-
             if (
                 start_index_arr != -1
                 and end_index_arr != -1
@@ -232,60 +279,49 @@ async def process_single_pair(
             elif start_index_obj != -1 and end_index_obj != -1:
                 cleaned_string = api_response_text[start_index_obj : end_index_obj + 1]
             else:
-                raise ValueError(
-                    "응답에서 유효한 JSON 객체 또는 배열을 찾을 수 없습니다."
-                )
+                raise ValueError("JSON 객체를 찾을 수 없습니다.")
 
             data = json.loads(cleaned_string)
-
-            # ✨ 1. 단일 평가 결과 추출: 배열이면 첫 번째 객체만 추출
             data_to_save = data[0] if isinstance(data, list) and data else data
 
+            # 6. 데이터 보정 (실제 이미지 개수로 덮어쓰기)
+            data_to_save["photo_count_detected"] = actual_photo_count
+
             total = data_to_save.get("total")
-            photo_count = data_to_save.get("photo_count_detected")
-
-            if total is None or photo_count is None:
-                raise ValueError(
-                    "JSON 응답에 'total' 또는 'photo_count_detected' 키가 누락되었습니다."
-                )
-
-            # ✨ 2. 추출한 단일 객체를 JSON 문자열로 다시 변환 (DB 저장을 위해)
             final_json_string = json.dumps(data_to_save, ensure_ascii=False)
 
-            # 5. DB 저장
+            # 7. DB 저장
             info = extract_info_from_filename(target_filename)
 
             await asyncio.to_thread(
                 db_utils.save_result_to_db,
                 os.path.splitext(target_filename)[0],
                 total,
-                photo_count,
-                final_json_string,  # <--- 단일 객체 JSON 문자열 저장
+                actual_photo_count,
+                final_json_string,
                 info.get("campus"),
                 info.get("class_name"),
                 info.get("author_name"),
             )
 
         except Exception as e:
-            logger.error(
-                f"[{key}] API 응답 파싱 또는 DB 저장 실패: {e} (원본 응답 길이: {len(api_response_text)})"
-            )
+            logger.error(f"[{key}] 파싱/DB저장 실패: {e}")
             return {
                 "key": key,
                 "filename": target_filename,
-                "status": "partial_success_db_fail",
-                "analysis_result": api_response_text,
-                "error": f"API 응답 파싱 또는 DB 저장 실패: {e}",
+                "status": "error",
+                "error": f"파싱/저장 오류: {e}",
             }
 
         return {
             "key": key,
             "filename": target_filename,
             "status": "success",
-            "analysis_result": final_json_string,  # 단일 객체 JSON 문자열 반환
+            "analysis_result": final_json_string,
         }
+
     except Exception as e:
-        logger.error(f"[{key}] 쌍 처리 중 오류: {e}")
+        logger.error(f"[{key}] 처리 중 오류: {e}")
         return {
             "key": key,
             "filename": target_filename,
