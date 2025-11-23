@@ -1,0 +1,447 @@
+:root {
+    --primary-blue: #4a90e2;
+    --hover-blue: #357abd;
+    --text-color: #333;
+    --border-color: #ddd;
+    --bg-color: #f9f9f9;
+    --white: #ffffff;
+    --header-height: 60px;
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: 'Noto Sans KR', sans-serif;
+    background-color: var(--white);
+    color: var(--text-color);
+    line-height: 1.6;
+}
+
+/* Header */
+.main-header {
+    height: var(--header-height);
+    border-bottom: 1px solid #eee;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--white);
+}
+
+.header-content {
+    width: 100%;
+    max-width: 1000px;
+    display: flex;
+    justify-content: center; /* Center the nav */
+    align-items: center;
+    padding: 0 20px;
+}
+
+.main-nav {
+    display: flex;
+    gap: 30px;
+}
+
+.nav-item {
+    text-decoration: none;
+    color: #333;
+    font-weight: 500;
+    font-size: 14px;
+}
+
+.nav-item.active {
+    font-weight: 700;
+}
+
+/* Hero Section */
+.hero-section {
+    height: 120px;
+    background-image: linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0.3)), url('https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80');
+    background-size: cover;
+    background-position: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--white);
+    margin-bottom: 40px;
+}
+
+.hero-section h1 {
+    font-size: 24px;
+    font-weight: 500;
+}
+
+/* Main Container */
+.container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 0 20px 60px;
+}
+
+/* Forms */
+.form-section {
+    margin-bottom: 40px;
+}
+
+.form-section h2 {
+    font-size: 18px;
+    font-weight: 700;
+    margin-bottom: 15px;
+    color: #000;
+}
+
+.form-group {
+    margin-bottom: 15px;
+}
+
+.sub-label {
+    display: block;
+    font-weight: 500;
+    font-size: 14px;
+    margin-bottom: 8px;
+    color: #333;
+}
+
+.full-width-input {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid var(--border-color);
+    border-radius: 0;
+    font-size: 14px;
+    outline: none;
+}
+
+.full-width-input:focus {
+    border-color: var(--primary-blue);
+}
+
+/* Team Member Inputs */
+.team-member-group {
+    margin-bottom: 15px;
+}
+
+.input-row {
+    display: flex;
+    gap: 10px;
+}
+
+.small-input {
+    width: 60px;
+    padding: 10px;
+    border: 1px solid var(--border-color);
+    border-radius: 0;
+    text-align: center;
+}
+
+.medium-input {
+    flex: 1;
+    padding: 10px;
+    border: 1px solid var(--border-color);
+    border-radius: 0;
+}
+
+/* Buttons */
+.button-container {
+    margin-top: 20px;
+}
+
+.button-container.center {
+    display: flex;
+    justify-content: center;
+}
+
+.btn-secondary {
+    background-color: var(--primary-blue);
+    color: var(--white);
+    border: none;
+    padding: 10px 30px;
+    border-radius: 0;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.btn-secondary:hover {
+    background-color: var(--hover-blue);
+}
+
+.btn-primary {
+    background-color: var(--primary-blue);
+    color: var(--white);
+    border: none;
+    padding: 15px;
+    border-radius: 0;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: 700;
+}
+
+.btn-primary:hover {
+    background-color: var(--hover-blue);
+}
+
+.full-width {
+    width: 100%;
+}
+
+/* Date Inputs */
+.date-row {
+    display: flex;
+    gap: 20px;
+}
+
+.date-input-wrapper {
+    flex: 1;
+}
+
+/* Webex Radio */
+.webex-section {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-top: 1px solid #eee;
+    padding-top: 20px;
+}
+
+.webex-section h2 {
+    margin-bottom: 0;
+}
+
+.radio-group {
+    display: flex;
+    gap: 10px;
+}
+
+.radio-label {
+    cursor: pointer;
+}
+
+.radio-custom {
+    display: inline-block;
+    padding: 8px 20px;
+    background-color: #e0e0e0;
+    color: #666;
+    border-radius: 0;
+    font-size: 13px;
+    font-weight: 500;
+}
+
+input[type="radio"] {
+    display: none;
+}
+
+input[type="radio"]:checked + .radio-custom {
+    background-color: #ddd; /* Slightly darker gray for active state in image looks like simple gray button */
+    /* Actually in the image it looks like standard buttons, let's match the image closely */
+    /* The image shows "신청" (Apply) and "미신청" (Not Apply) as gray buttons. */
+}
+
+/* Let's refine radio buttons to look like the image */
+.radio-custom {
+    background-color: #f0f0f0;
+    border: 1px solid #ddd;
+}
+
+/* Submit Section */
+.submit-container {
+    margin-top: 40px;
+    border-top: 1px solid #eee;
+    padding-top: 30px;
+}
+
+/* File Upload */
+.file-upload-container {
+    border: 1px solid #ddd;
+    padding: 40px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background-color: var(--white);
+    gap: 15px;
+}
+
+.upload-icon {
+    color: #333;
+}
+
+.upload-text {
+    font-size: 14px;
+    color: #666;
+}
+
+.btn-upload {
+    background-color: #e0e0e0;
+    color: #333;
+    border: none;
+    padding: 8px 20px;
+    border-radius: 0;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.btn-upload:hover {
+    background-color: #d0d0d0;
+}
+
+/* Main Page */
+.main-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: calc(100vh - var(--header-height));
+    padding: 20px;
+}
+
+.main-content {
+    text-align: center;
+    max-width: 1000px;
+    width: 100%;
+}
+
+.main-image-container {
+    margin-bottom: 60px;
+}
+
+.main-image {
+    max-width: 100%;
+    height: auto;
+    display: block;
+    margin: 0 auto;
+}
+
+.main-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    flex-wrap: wrap;
+}
+
+.main-btn {
+    display: inline-block;
+    padding: 15px 40px;
+    background-color: var(--primary-blue);
+    color: var(--white);
+    text-decoration: none;
+    border-radius: 0;
+    font-size: 18px;
+    font-weight: 700;
+    transition: background-color 0.3s;
+    min-width: 200px;
+    text-align: center;
+}
+
+.main-btn:hover {
+    background-color: var(--hover-blue);
+}
+
+/* Search Section */
+.search-section {
+    background-color: #eee;
+    padding: 20px;
+    border-radius: 4px;
+    margin-bottom: 30px;
+}
+
+.search-section h2 {
+    font-size: 18px;
+    font-weight: 700;
+    margin-bottom: 15px;
+    color: #333;
+}
+
+.search-box {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.search-select {
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 0;
+    background-color: var(--white);
+    min-width: 120px;
+    font-size: 14px;
+    color: #333;
+    outline: none;
+}
+
+.search-input-wrapper {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    border: 1px solid #ddd;
+    border-radius: 0;
+    background-color: var(--white);
+    overflow: hidden;
+}
+
+.search-input {
+    flex: 1;
+    padding: 10px;
+    border: none;
+    outline: none;
+    font-size: 14px;
+}
+
+.search-btn {
+    background-color: transparent;
+    border: none;
+    padding: 10px 15px;
+    cursor: pointer;
+    color: #666;
+}
+
+.search-btn:hover {
+    color: var(--primary-blue);
+}
+
+/* Results Table */
+.results-section {
+    margin-bottom: 60px;
+}
+
+.results-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+}
+
+.results-table th,
+.results-table td {
+    padding: 15px 10px;
+    text-align: center;
+    border-bottom: 1px solid #eee;
+    color: #666;
+}
+
+.results-table th {
+    border-top: 1px solid #ddd;
+    border-bottom: 1px solid #ddd;
+    font-weight: 500;
+    color: #333;
+}
+
+.results-table tr:last-child td {
+    border-bottom: 1px solid #ddd;
+}
+
+.results-table tr:hover {
+    background-color: #f9f9f9;
+}
+
+.text-left {
+    text-align: left !important;
+    padding-left: 20px !important;
+}
+
+.required {
+    color: red;
+    margin-left: 4px;
+}

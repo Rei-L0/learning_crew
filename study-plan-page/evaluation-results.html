@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>채점결과 확인 - SSAFY 스터디 플랫폼</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <!-- FontAwesome for Search Icon -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <header class="main-header">
+        <div class="header-content">
+            <nav class="main-nav">
+                <a href="index.html" class="nav-item">홈</a>
+                <a href="study-plan.html" class="nav-item">계획서 작성</a>
+                <a href="result-report.html" class="nav-item">결과보고서 작성</a>
+                <a href="evaluation-results.html" class="nav-item active">채점결과 확인</a>
+            </nav>
+        </div>
+    </header>
+
+    <div class="hero-section">
+        <h1>채점결과 확인</h1>
+    </div>
+
+    <main class="container">
+        <!-- Search Section -->
+        <section class="search-section">
+            <h2>검색</h2>
+            <div class="search-box">
+                <select class="search-select">
+                    <option value="">캠퍼스</option>
+                    <option value="seoul">서울</option>
+                    <option value="daejeon">대전</option>
+                    <option value="gumi">구미</option>
+                    <option value="gwangju">광주</option>
+                    <option value="busan">부울경</option>
+                </select>
+                <select class="search-select">
+                    <option value="">반</option>
+                    <option value="1">1반</option>
+                    <option value="2">2반</option>
+                </select>
+                <select class="search-select">
+                    <option value="">제출일</option>
+                    <option value="latest">최신순</option>
+                    <option value="oldest">오래된순</option>
+                </select>
+                <div class="search-input-wrapper">
+                    <input type="text" placeholder="검색어를 입력해주세요" class="search-input">
+                    <button class="search-btn"><i class="fas fa-search"></i></button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Results Table Section -->
+        <section class="results-section">
+            <table class="results-table">
+                <thead>
+                    <tr>
+                        <th style="width: 8%;">번호</th>
+                        <th style="width: 40%;">제목</th>
+                        <th style="width: 15%;">작성자</th>
+                        <th style="width: 15%;">캠퍼스</th>
+                        <th style="width: 22%;">최종수정일</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Sample Data Rows -->
+                    <tr>
+                        <td>1</td>
+                        <td class="text-left">알고리즘 스터디 1팀 계획서</td>
+                        <td>김싸피</td>
+                        <td>부울경</td>
+                        <td>2023.11.23</td>
+                    </tr>
+                    <tr>
+                        <td>2</td>
+                        <td class="text-left">WEB 심화 스터디 계획서</td>
+                        <td>이싸피</td>
+                        <td>부울경</td>
+                        <td>2023.11.22</td>
+                    </tr>
+                    <tr>
+                        <td>3</td>
+                        <td class="text-left">CS 면접 대비 스터디</td>
+                        <td>박싸피</td>
+                        <td>구미</td>
+                        <td>2023.11.22</td>
+                    </tr>
+                    <tr>
+                        <td>4</td>
+                        <td class="text-left">자바 전공 스터디</td>
+                        <td>최싸피</td>
+                        <td>광주</td>
+                        <td>2023.11.21</td>
+                    </tr>
+                    <tr>
+                        <td>5</td>
+                        <td class="text-left">파이썬 기초 스터디</td>
+                        <td>정싸피</td>
+                        <td>서울</td>
+                        <td>2023.11.21</td>
+                    </tr>
+                    <tr>
+                        <td>6</td>
+                        <td class="text-left">프론트엔드 포트폴리오 스터디</td>
+                        <td>강싸피</td>
+                        <td>서울</td>
+                        <td>2023.11.20</td>
+                    </tr>
+                    <tr>
+                        <td>7</td>
+                        <td class="text-left">백엔드 아키텍처 스터디</td>
+                        <td>조싸피</td>
+                        <td>대전</td>
+                        <td>2023.11.20</td>
+                    </tr>
+                    <tr>
+                        <td>8</td>
+                        <td class="text-left">알고리즘 문제풀이 반</td>
+                        <td>윤싸피</td>
+                        <td>부울경</td>
+                        <td>2023.11.19</td>
+                    </tr>
+                    <tr>
+                        <td>9</td>
+                        <td class="text-left">스프링 부트 심화</td>
+                        <td>장싸피</td>
+                        <td>서울</td>
+                        <td>2023.11.19</td>
+                    </tr>
+                    <tr>
+                        <td>10</td>
+                        <td class="text-left">리액트 네이티브 앱 개발</td>
+                        <td>임싸피</td>
+                        <td>서울</td>
+                        <td>2023.11.18</td>
+                    </tr>
+                     <tr>
+                        <td>11</td>
+                        <td class="text-left">데이터 분석 기초</td>
+                        <td>한싸피</td>
+                        <td>서울</td>
+                        <td>2023.11.18</td>
+                    </tr>
+                    <tr>
+                        <td>12</td>
+                        <td class="text-left">머신러닝 입문</td>
+                        <td>오싸피</td>
+                        <td>광주</td>
+                        <td>2023.11.17</td>
+                    </tr>
+                    <tr>
+                        <td>13</td>
+                        <td class="text-left">클라우드 컴퓨팅 (AWS)</td>
+                        <td>서싸피</td>
+                        <td>광주</td>
+                        <td>2023.11.17</td>
+                    </tr>
+                    <tr>
+                        <td>14</td>
+                        <td class="text-left">네트워크 보안 기초</td>
+                        <td>신싸피</td>
+                        <td>대전</td>
+                        <td>2023.11.16</td>
+                    </tr>
+                    <tr>
+                        <td>15</td>
+                        <td class="text-left">블록체인 이해</td>
+                        <td>권싸피</td>
+                        <td>서울</td>
+                        <td>2023.11.16</td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+    </main>
+
+    <script type="module" src="script.js"></script>
+</body>
+</html>

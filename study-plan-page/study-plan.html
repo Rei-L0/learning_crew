@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>스터디 계획서 작성</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <header class="main-header">
+        <div class="header-content">
+            <nav class="main-nav">
+                <a href="index.html" class="nav-item">홈</a>
+                <a href="study-plan.html" class="nav-item active">계획서 작성</a>
+                <a href="result-report.html" class="nav-item">결과보고서 작성</a>
+                <a href="evaluation-results.html" class="nav-item">채점결과 확인</a>
+            </nav>
+        </div>
+    </header>
+
+    <div class="hero-section">
+        <div class="hero-overlay"></div>
+        <h1>스터디 계획서 작성</h1>
+    </div>
+
+    <main class="container">
+        <form id="study-plan-form">
+            <!-- Study Team Info -->
+            <section class="form-section">
+                <h2>스터디 팀 정보</h2>
+                <div class="form-group">
+                    <select id="campus-select" class="full-width-input" required>
+                        <option value="" disabled selected>캠퍼스를 선택해주세요</option>
+                        <option value="seoul">서울</option>
+                        <option value="daejeon">대전</option>
+                        <option value="gumi">구미</option>
+                        <option value="gwangju">광주</option>
+                        <option value="buulgyeong">부울경</option>
+                    </select>
+                </div>
+
+                <div class="team-member-group">
+                    <label class="sub-label">팀장</label>
+                    <div class="input-row">
+                        <input type="text" placeholder="반" class="small-input" required>
+                        <input type="text" placeholder="학번" class="medium-input" required>
+                        <input type="text" placeholder="이름" class="medium-input" id="leader-name" required>
+                    </div>
+                </div>
+
+                <div id="team-members-container">
+                    <div class="team-member-group">
+                        <label class="sub-label">팀원</label>
+                        <div class="input-row">
+                            <input type="text" placeholder="반" class="small-input" required>
+                            <input type="text" placeholder="학번" class="medium-input" required>
+                            <input type="text" placeholder="이름" class="medium-input" required>
+                        </div>
+                        <div class="input-row" style="margin-top: 10px;">
+                            <input type="text" placeholder="반" class="small-input" required>
+                            <input type="text" placeholder="학번" class="medium-input" required>
+                            <input type="text" placeholder="이름" class="medium-input" required>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="button-container center">
+                    <button type="button" id="add-member-btn" class="btn-secondary">팀원 추가하기</button>
+                </div>
+            </section>
+
+            <!-- Study Period -->
+            <section class="form-section">
+                <h2>스터디 기간</h2>
+                <div class="date-row">
+                    <div class="date-input-wrapper">
+                        <input type="date" class="full-width-input" placeholder="시작 날짜를 선택해주세요" required>
+                    </div>
+                    <div class="date-input-wrapper">
+                        <input type="date" class="full-width-input" placeholder="종료 날짜를 선택해주세요" required>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Study Plan -->
+            <section class="form-section">
+                <h2>스터디 계획서</h2>
+                <div class="form-group">
+                    <label class="sub-label">활동 목표 <span class="required">*</span></label>
+                    <input type="text" class="full-width-input" placeholder="활동목표를 입력해주세요" id="study-goal" required>
+                </div>
+                <div class="form-group">
+                    <label class="sub-label">활동 계획 <span class="required">*</span></label>
+                    <textarea class="full-width-input" rows="10" placeholder="활동계획을 입력해주세요" required></textarea>
+                </div>
+            </section>
+
+            <!-- Remarks -->
+            <section class="form-section">
+                <h2>비고</h2>
+                <textarea class="full-width-input" rows="5" placeholder="기타사항을 입력해주세요"></textarea>
+            </section>
+
+            <!-- Webex -->
+            <section class="form-section webex-section">
+                <h2>Webex 신청 여부</h2>
+                <div class="radio-group">
+                    <label class="radio-label">
+                        <input type="radio" name="webex" value="apply">
+                        <span class="radio-custom">신청</span>
+                    </label>
+                    <label class="radio-label">
+                        <input type="radio" name="webex" value="none" checked>
+                        <span class="radio-custom">미신청</span>
+                    </label>
+                </div>
+                <div id="webex-email-container" style="display: none; margin-top: 10px;">
+                    <input type="email" id="webex-email" class="full-width-input" placeholder="Webex 계정 이메일을 입력해주세요">
+                </div>
+            </section>
+
+            <div class="submit-container">
+                <button type="submit" class="btn-primary full-width">제출하기</button>
+            </div>
+        </form>
+    </main>
+
+    <script type="module" src="script.js"></script>
+</body>
+</html>

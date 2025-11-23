@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>스터디 결과보고서 작성</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <header class="main-header">
+        <div class="header-content">
+            <nav class="main-nav">
+                <a href="index.html" class="nav-item">홈</a>
+                <a href="study-plan.html" class="nav-item">계획서 작성</a>
+                <a href="result-report.html" class="nav-item active">결과보고서 작성</a>
+                <a href="evaluation-results.html" class="nav-item">채점결과 확인</a>
+            </nav>
+        </div>
+    </header>
+
+    <div class="hero-section">
+        <div class="hero-overlay"></div>
+        <h1>스터디 결과보고서 작성</h1>
+    </div>
+
+    <main class="container">
+        <form id="study-report-form">
+            <!-- Study Team Info -->
+            <section class="form-section">
+                <h2>스터디 팀 정보</h2>
+                <div class="form-group">
+                    <select class="full-width-input" required>
+                        <option value="" disabled selected>캠퍼스를 선택해주세요</option>
+                        <option value="seoul">서울</option>
+                        <option value="daejeon">대전</option>
+                        <option value="gumi">구미</option>
+                        <option value="gwangju">광주</option>
+                        <option value="buulgyeong">부울경</option>
+                    </select>
+                </div>
+
+                <div class="team-member-group">
+                    <label class="sub-label">팀장</label>
+                    <div class="input-row">
+                        <input type="text" placeholder="반" class="small-input" required>
+                        <input type="text" placeholder="학번" class="medium-input" required>
+                        <input type="text" placeholder="이름" class="medium-input" required>
+                    </div>
+                </div>
+
+                <div id="team-members-container">
+                    <div class="team-member-group">
+                        <label class="sub-label">팀원</label>
+                        <div class="input-row">
+                            <input type="text" placeholder="반" class="small-input" required>
+                            <input type="text" placeholder="학번" class="medium-input" required>
+                            <input type="text" placeholder="이름" class="medium-input" required>
+                        </div>
+                        <div class="input-row" style="margin-top: 10px;">
+                            <input type="text" placeholder="반" class="small-input" required>
+                            <input type="text" placeholder="학번" class="medium-input" required>
+                            <input type="text" placeholder="이름" class="medium-input" required>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="button-container center">
+                    <button type="button" id="add-member-btn" class="btn-secondary">팀원 추가하기</button>
+                </div>
+            </section>
+
+            <!-- Study Period -->
+            <section class="form-section">
+                <h2>스터디 기간</h2>
+                <div class="date-row">
+                    <div class="date-input-wrapper">
+                        <input type="date" class="full-width-input" placeholder="시작 날짜를 선택해주세요" required>
+                    </div>
+                    <div class="date-input-wrapper">
+                        <input type="date" class="full-width-input" placeholder="종료 날짜를 선택해주세요" required>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Study Report -->
+            <section class="form-section">
+                <h2>스터디 보고서</h2>
+                <div class="form-group">
+                    <label class="sub-label">활동 목표 <span class="required">*</span></label>
+                    <input type="text" class="full-width-input" placeholder="활동목표를 입력해주세요" required>
+                </div>
+                <div class="form-group">
+                    <label class="sub-label">활동 내용 <span class="required">*</span></label>
+                    <textarea class="full-width-input" rows="10" placeholder="활동 내용을 입력해주세요" required></textarea>
+                </div>
+                <div class="form-group">
+                    <label class="sub-label">활동 소감 <span class="required">*</span></label>
+                    <textarea class="full-width-input" rows="5" placeholder="활동 소감을 입력해주세요&#10;ex)&#10;  - 과목명 :&#10;  - 이유 :&#10;  - 목표 :" required></textarea>
+                </div>
+            </section>
+
+            <!-- Activity Photos -->
+            <section class="form-section">
+                <h2>활동 사진</h2>
+                <div class="file-upload-container">
+                    <div class="upload-icon">
+                        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M12 16L12 8" stroke="#333" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M9 11L12 8 15 11" stroke="#333" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M8 16H16" stroke="#333" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M3 15C3 17.8284 3 19.2426 3.87868 20.1213C4.75736 21 6.17157 21 9 21H15C17.8284 21 19.2426 21 20.1213 20.1213C21 19.2426 21 17.8284 21 15" stroke="#333" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M16 7C16 4.23858 13.7614 2 11 2C8.23858 2 6 4.23858 6 7" stroke="#333" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M12 2C14.7614 2 17 4.23858 17 7" stroke="#333" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M7 7C4.23858 7 2 9.23858 2 12" stroke="#333" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        <!-- Using a simple cloud upload icon SVG representation or similar -->
+                        <svg width="50" height="50" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                            <polyline points="17 8 12 3 7 8"></polyline>
+                            <line x1="12" y1="3" x2="12" y2="15"></line>
+                        </svg>
+                    </div>
+                    <p class="upload-text">활동 사진을 업로드해주세요 (최대 50장).</p>
+                    <button type="button" class="btn-upload">파일 업로드</button>
+                    <input type="file" multiple style="display: none;">
+                </div>
+            </section>
+
+            <div class="submit-container">
+                <button type="submit" class="btn-primary full-width">제출하기</button>
+            </div>
+        </form>
+    </main>
+
+    <script type="module" src="script.js"></script>
+</body>
+</html>
