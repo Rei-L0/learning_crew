@@ -2,6 +2,7 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import { getFirestore, collection, addDoc, getDocs, getDoc, doc, orderBy, query, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 import { GEMINI_API_KEY } from "./api-keys.js";
+import { createPlanEvaluationPrompt, createReportEvaluationPrompt } from "./prompts.js";
 
 // Your web app's Firebase configuration
 const firebaseConfig = {
@@ -159,77 +160,63 @@ async function callGeminiAPI(prompt) {
 }
 
 async function evaluateStudyPlan(formData) {
-    const prompt = `다음 스터디 계획서를 평가해주세요. 100점 만점으로 점수를 매기고, 구체적인 피드백을 제공해주세요.
-
-활동 목표: ${formData.goal}
-활동 계획: ${formData.plan}
-팀원 수: ${formData.memberCount}명
-
-평가 기준:
-1. 목표의 명확성과 구체성
-2. 계획의 실현 가능성
-3. 팀원들과의 협업 방안
-4. 학습 내용의 깊이
-
-다음 형식으로 응답해주세요:
-점수: [숫자]
-피드백: [구체적인 피드백]`;
-
     try {
-        const response = await callGeminiAPI(prompt);
+        const fullPrompt = createPlanEvaluationPrompt(
+            formData.goal,
+            formData.plan,
+            formData.memberCount
+        );
+        const response = await callGeminiAPI(fullPrompt);
         
-        // 응답 파싱
-        const scoreMatch = response.match(/점수:\s*(\d+)/);
-        const feedbackMatch = response.match(/피드백:\s*(.+)/s);
-        
-        return {
-            score: scoreMatch ? parseInt(scoreMatch[1]) : 85,
-            feedback: feedbackMatch ? feedbackMatch[1].trim() : response
-        };
+        // JSON 파싱
+        const jsonMatch = response.match(/\{[\s\S]*\}/);
+        if (jsonMatch) {
+            const result = JSON.parse(jsonMatch[0]);
+            return {
+                score: Math.round(result.total),
+                feedback: result.final_comment || '평가가 완료되었습니다.',
+                detail: result
+            };
+        } else {
+            throw new Error('JSON 응답을 찾을 수 없습니다.');
+        }
     } catch (error) {
         console.error('평가 중 오류 발생:', error);
         // 폴백: 기본 평가 반환
         return {
-            score: 85,
-            feedback: '평가 시스템에 일시적인 문제가 발생했습니다. 계획서가 제출되었습니다.'
+            score: 20,
+            feedback: '계획서만 제출된 경우 결과보고서가 제출된 후 최종 평가됩니다. 계획서가 접수되었습니다.'
         };
     }
 }
 
 async function evaluateStudyReport(formData) {
-    const prompt = `다음 스터디 결과보고서를 평가해주세요. 100점 만점으로 점수를 매기고, 구체적인 피드백을 제공해주세요.
-
-활동 목표: ${formData.goal}
-활동 내용: ${formData.content}
-활동 소감: ${formData.reflection}
-팀원 수: ${formData.memberCount}명
-
-평가 기준:
-1. 목표 달성도
-2. 활동 내용의 구체성과 충실도
-3. 학습한 내용의 깊이
-4. 성찰과 개선 방안
-
-다음 형식으로 응답해주세요:
-점수: [숫자]
-피드백: [구체적인 피드백]`;
-
     try {
-        const response = await callGeminiAPI(prompt);
+        const fullPrompt = createReportEvaluationPrompt(
+            formData.goal,
+            formData.content,
+            formData.reflection,
+            formData.memberCount
+        );
+        const response = await callGeminiAPI(fullPrompt);
         
-        // 응답 파싱
-        const scoreMatch = response.match(/점수:\s*(\d+)/);
-        const feedbackMatch = response.match(/피드백:\s*(.+)/s);
-        
-        return {
-            score: scoreMatch ? parseInt(scoreMatch[1]) : 85,
-            feedback: feedbackMatch ? feedbackMatch[1].trim() : response
-        };
+        // JSON 파싱
+        const jsonMatch = response.match(/\{[\s\S]*\}/);
+        if (jsonMatch) {
+            const result = JSON.parse(jsonMatch[0]);
+            return {
+                score: Math.round(result.total),
+                feedback: result.final_comment || '평가가 완료되었습니다.',
+                detail: result
+            };
+        } else {
+            throw new Error('JSON 응답을 찾을 수 없습니다.');
+        }
     } catch (error) {
         console.error('평가 중 오류 발생:', error);
         // 폴백: 기본 평가 반환
         return {
-            score: 85,
+            score: 70,
             feedback: '평가 시스템에 일시적인 문제가 발생했습니다. 보고서가 제출되었습니다.'
         };
     }
