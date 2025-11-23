@@ -4,3 +4,6 @@
 .env
 /evaluation_report/debug
 .DS_Store
+
+# API Keys (sensitive)
+study-plan-page/api-keys.js
